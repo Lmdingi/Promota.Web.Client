@@ -1,0 +1,34 @@
+﻿@page "/login"
+@layout EmptyLayout
+@inject IAuthService _authService
+@inject NavigationManager _nav
+@rendermode InteractiveServer
+
+<h1 class="text-center">Sign in to continue</h1>
+<div class="container">
+    <input type="text" @bind="Email" class="form-control" placeholder="Email" required autofocus/>
+    <input type="password" @bind="Password" class="form-control" placeholder="Password" required/>
+    <button class="btn btn-lg btn-primary btn-block w-100" @onclick="OnLogin">Sign in</button>
+</div>
+
+@code {
+    string Email { get; set; }
+    string Password { get; set; }
+
+    private async Task OnLogin()
+    {
+        try
+        {
+            var status = await _authService.Login(Email, Password);
+
+            if (status)
+            {
+                _nav.NavigateTo("/");
+            }
+        }
+        catch (Exception ex)
+        {
+            
+        }
+    }
+}

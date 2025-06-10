@@ -1,5 +1,9 @@
 using Client.Components;
+using Client.Security;
+using Microsoft.AspNetCore.Components.Authorization;
 using Serilog;
+using Services;
+using Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +19,27 @@ builder.Logging.AddSerilog(logger);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// services
+builder.Services.AddScoped<ICookieService, CookieService>();
+builder.Services.AddScoped<IAccessTokenService, AccessTokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHttpClient("ApiClient", options =>
+{
+    options.BaseAddress = new Uri("https://localhost:7041/api/");
+});
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication()
+    .AddScheme<CustomOption, JWTAuthenticationHandler>("JWTAuth", options =>
+    {
+
+    });
+
+builder.Services.AddScoped<JWTAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, JWTAuthenticationStateProvider>();
+
+builder.Services.AddCascadingAuthenticationState();
 
 var app = builder.Build();
 
