@@ -12,7 +12,15 @@ function setCookie(name, value, days) {
 }
 
 function deleteCookie(name) {
-  document.cookie = "=; Max-Age=-99999999;";
+    document.cookie = name + "=; Max-Age=-99999999;";
+
+    // remove in prod
+    localStorage.clear();
+    sessionStorage.clear();
+    caches.keys().then(function (names) {
+        for (let name of names)
+            caches.delete(name);
+    });
 }
 
 function getCookie(name) {

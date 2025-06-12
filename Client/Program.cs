@@ -24,6 +24,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<IAccessTokenService, AccessTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.AddScoped<IAPIService, APIService>(); 
+builder.Services.AddScoped<IResourceService, ResourceService>(); 
+
 builder.Services.AddHttpClient("ApiClient", options =>
 {
     options.BaseAddress = new Uri("https://localhost:7041/api/");

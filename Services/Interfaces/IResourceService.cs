@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
-    public interface IAuthService
+    public interface IResourceService
     {
-        Task<bool> Login(string email, string password);
-        Task Logout();
-        Task<bool> RefreshTokenAsync();
+        Task<bool> Verify();
     }
 }
