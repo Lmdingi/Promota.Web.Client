@@ -1,0 +1,26 @@
+﻿@inject NavigationManager _nav
+@rendermode InteractiveServer
+
+﻿<div class="d-flex gap-2">
+    <button class="btn btn-primary" @onclick="OnSignIn">Sign In</button>
+    <button class="btn btn-outline-primary">Register</button>
+</div>
+
+@code {
+    // props
+
+    // fields
+
+    // methods
+    private async Task OnSignIn()
+    {
+        try
+        {
+            _nav.NavigateTo("/login");            
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+}

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using Services.Interfaces;
-using Services.Models;
+using Services.Models.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +17,18 @@ namespace Services
 
         // fields
         private readonly IAccessTokenService _accessTokenService;
-        private readonly NavigationManager _nav;
+        private readonly NavigationManager _navManager;
         private readonly IRefreshTokenService _refreshTokenService;
+        private readonly INavService _navService;
         private readonly HttpClient _client;
 
         // ctors
-        public AuthService(IAccessTokenService accessTokenService, NavigationManager nav, IHttpClientFactory httpClientFactory, IRefreshTokenService refreshTokenService)
+        public AuthService(IAccessTokenService accessTokenService, NavigationManager navManager, IHttpClientFactory httpClientFactory, IRefreshTokenService refreshTokenService, INavService navService)
         {
             _accessTokenService = accessTokenService;
-            _nav = nav;
+            _navManager = navManager;
             _refreshTokenService = refreshTokenService;
+            _navService = navService;
             _client = httpClientFactory.CreateClient("ApiClient");
         }
 
@@ -45,6 +47,7 @@ namespace Services
                     await _accessTokenService.RemoveToken();
                     await _accessTokenService.SetToken(result.AccessToken);
                     await _refreshTokenService.Set(result.RefreshToken);
+                    _navService.UserName = result.User.UserName;
 
                     return true;
                 }
@@ -71,7 +74,7 @@ namespace Services
                 {
                     await _accessTokenService.RemoveToken();
                     await _refreshTokenService.Remove();
-                    _nav.NavigateTo("/login", forceLoad: true);
+                    _navManager.NavigateTo("/login", forceLoad: true);
                 }
             }
             catch (Exception ex)

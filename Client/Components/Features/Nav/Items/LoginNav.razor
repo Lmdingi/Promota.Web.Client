@@ -1,0 +1,46 @@
+﻿@attribute [Authorize]
+@rendermode InteractiveServer
+@inject INavService _navService
+
+<AuthorizeView>
+    ﻿<div class="d-flex align-items-center gap-3 p-2">
+        <button class="btn btn-primary d-flex align-items-center gap-1">
+            <i class="bi bi-calendar-plus"></i> Promote
+        </button>
+
+        <button class="btn btn-outline-success d-flex align-items-center gap-1">
+            <i class="bi bi-calendar2-check"></i> Going
+        </button>
+
+        <span class="fw-semibold">Welcome, @_userName</span>
+
+        <button class="btn position-relative">
+            <i class="fas fa-bell"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                3
+                <span class="visually-hidden">unread notifications</span>
+            </span>
+        </button>
+
+        <img src="@_profilePictureUrl" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" />
+    </div>
+</AuthorizeView>
+
+@code {
+    // props
+
+    // fields
+    private string _userName = string.Empty;
+    private string _profilePictureUrl = "https://reddoorescape.com/wp-content/uploads/DP.png";
+
+    // methods
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateNav();
+    }
+
+    private async Task UpdateNav()
+    {
+        _userName = _navService.UserName;
+    }
+}

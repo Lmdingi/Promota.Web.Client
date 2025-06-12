@@ -1,0 +1,46 @@
+﻿﻿@* check if user is logged in and switch nav based on that *@
+@attribute [Authorize]
+@inject IAuthService _authService
+@inject NavigationManager _nav
+@inject JWTAuthenticationStateProvider _AuthStateProvider
+@inject IAccessTokenService _AccessTokenService
+@inject IAuthService _AuthService
+@inject IResourceService _ResourceService
+@rendermode InteractiveServer
+
+@if (_isLoggedIn)
+{
+    <LoginNav></LoginNav>
+}
+else
+{ 
+    <LogoutNav></LogoutNav>
+}
+
+@code {
+	// props	
+
+	// fields
+	public bool _isLoggedIn;
+
+	// methods
+	protected override async Task OnInitializedAsync()
+	{
+		await InitialValues();
+	}
+
+	private async Task InitialValues()
+	{
+		var state = await _AuthStateProvider.GetAuthenticationStateAsync();
+		var user = state.User;
+
+		if (user.Identity.IsAuthenticated)
+		{
+			_isLoggedIn = true;
+		}
+		else
+		{
+			_isLoggedIn = false;
+		}
+	}
+}

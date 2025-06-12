@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Services.Models
 {
-    public class AuthResponseDto
+    public class User
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        public Guid Id { get; set; }
+        public string UserName { get; set; } = string.Empty;
     }
 }
