@@ -47,7 +47,6 @@ namespace Services
                     await _accessTokenService.RemoveToken();
                     await _accessTokenService.SetToken(result.AccessToken);
                     await _refreshTokenService.Set(result.RefreshToken);
-                    _navService.UserName = result.User.UserName;
 
                     return true;
                 }
@@ -74,7 +73,7 @@ namespace Services
                 {
                     await _accessTokenService.RemoveToken();
                     await _refreshTokenService.Remove();
-                    _navManager.NavigateTo("/login", forceLoad: true);
+                    _navManager.NavigateTo("/", forceLoad: true);
                 }
             }
             catch (Exception ex)

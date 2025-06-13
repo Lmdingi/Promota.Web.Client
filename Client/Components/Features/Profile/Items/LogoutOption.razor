@@ -1,0 +1,21 @@
+﻿@inject IAuthService _authService
+
+<li style="padding: 8px 10px;" >
+	<button class="btn btn-outline-danger w-100 text-start py-2" @onclick="Logout">
+		<i class="bi bi-box-arrow-right ms-2"></i> Logout
+	</button>
+</li>
+
+@code {
+	private async Task Logout()
+	{
+		try
+		{
+			await _authService.Logout();
+		}
+		catch (Exception ex)
+		{
+
+		}
+    }
+}

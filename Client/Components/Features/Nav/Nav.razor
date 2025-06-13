@@ -1,4 +1,4 @@
-﻿﻿@* check if user is logged in and switch nav based on that *@
+﻿@rendermode InteractiveServer
 @attribute [Authorize]
 @inject IAuthService _authService
 @inject NavigationManager _nav
@@ -6,11 +6,12 @@
 @inject IAccessTokenService _AccessTokenService
 @inject IAuthService _AuthService
 @inject IResourceService _ResourceService
-@rendermode InteractiveServer
 
-@if (_isLoggedIn)
+@if (CurrentUser != null && CurrentUser.IsAuthenticated)
 {
-    <LoginNav></LoginNav>
+	<CascadingValue Value="@CurrentUser" Name="CurrentUser">
+		<LoginNav></LoginNav>
+	</CascadingValue>
 }
 else
 { 
@@ -19,28 +20,12 @@ else
 
 @code {
 	// props	
-
+	public User? CurrentUser { get; set; }
 	// fields
-	public bool _isLoggedIn;
 
 	// methods
 	protected override async Task OnInitializedAsync()
 	{
-		await InitialValues();
-	}
-
-	private async Task InitialValues()
-	{
-		var state = await _AuthStateProvider.GetAuthenticationStateAsync();
-		var user = state.User;
-
-		if (user.Identity.IsAuthenticated)
-		{
-			_isLoggedIn = true;
-		}
-		else
-		{
-			_isLoggedIn = false;
-		}
+		CurrentUser = await _AuthStateProvider.GetCurrentUserState();
 	}
 }

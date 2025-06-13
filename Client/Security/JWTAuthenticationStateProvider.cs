@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using Services.Interfaces;
+using Services.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Client.Security
 {
     public class JWTAuthenticationStateProvider : AuthenticationStateProvider
     {
         // props
+        public User CurrentUser { get; set; }        
 
         // fields
         private readonly IAccessTokenService _accessTokenService;
@@ -55,6 +58,32 @@ namespace Client.Security
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
+        }
+
+        public async Task<User?> GetCurrentUserState()
+        {
+            try
+            {
+                var state = await GetAuthenticationStateAsync();
+                var user = state.User;
+
+                if (user.Identity != null && user.Identity.IsAuthenticated)
+                {
+                    var currentuser = new User();
+                    currentuser.IsAuthenticated = user.Identity.IsAuthenticated;
+                    currentuser.UserName = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+                    currentuser.ProfilePictureUrl = "https://reddoorescape.com/wp-content/uploads/DP.png";
+
+                    CurrentUser = currentuser;
+                }               
+
+                return CurrentUser;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            
         }
     }
 }
