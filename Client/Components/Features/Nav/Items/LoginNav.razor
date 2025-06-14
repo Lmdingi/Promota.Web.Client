@@ -27,7 +27,7 @@
 
             @if (_isProfileMenuOpen)
             {
-                <ProfileMenu></ProfileMenu>
+                <ProfileMenu ReloadNav="ReloadNav"></ProfileMenu>
             }
         </div>    
         
@@ -42,6 +42,8 @@
     // props
     [CascadingParameter(Name = "CurrentUser")]
     public User? CurrentUser { get; set; }
+
+    [Parameter] public EventCallback<bool> ReloadNav { get; set; }
 
     // fields
     private bool _isProfileMenuOpen = false;

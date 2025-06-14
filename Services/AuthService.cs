@@ -61,7 +61,7 @@ namespace Services
             }
         }
 
-        public async Task Logout()
+        public async Task<bool> Logout()
         {
             try
             {
@@ -73,12 +73,14 @@ namespace Services
                 {
                     await _accessTokenService.RemoveToken();
                     await _refreshTokenService.Remove();
-                    _navManager.NavigateTo("/", forceLoad: true);
+                    //_navManager.NavigateTo("/", forceLoad: true);
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
-
+                return false;
             }
         }
 

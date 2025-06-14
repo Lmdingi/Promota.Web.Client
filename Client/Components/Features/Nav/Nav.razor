@@ -9,23 +9,40 @@
 
 @if (CurrentUser != null && CurrentUser.IsAuthenticated)
 {
+	@* shows when loged-in *@
 	<CascadingValue Value="@CurrentUser" Name="CurrentUser">
-		<LoginNav></LoginNav>
+		<LoginNav ReloadNav="@OnReloadNav"></LoginNav>
 	</CascadingValue>
 }
 else
-{ 
-    <LogoutNav></LogoutNav>
+{
+	@* shows when not loged-in *@
+	<LogoutNav ReloadNav="@OnReloadNav"></LogoutNav>
 }
 
 @code {
 	// props	
 	public User? CurrentUser { get; set; }
+
 	// fields
+	private bool _showLoginPopup;
 
 	// methods
 	protected override async Task OnInitializedAsync()
 	{
 		CurrentUser = await _AuthStateProvider.GetCurrentUserState();
+	}
+
+	private async Task OnReloadNav(bool isAuthenticated)
+	{
+		if (isAuthenticated)
+		{
+			CurrentUser = await _AuthStateProvider.GetCurrentUserState();
+		}
+		else
+		{
+			CurrentUser = null;
+		}
+		StateHasChanged();
 	}
 }

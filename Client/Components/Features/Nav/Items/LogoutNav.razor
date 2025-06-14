@@ -5,21 +5,29 @@
     <button class="btn btn-outline-primary">Register</button>
 </div>
 
+@if (_showLoginPopup)
+{
+    <LoginPopup ReloadNav="ReloadNav" ShowLoginPopup="@OnReloadLoginPopup"></LoginPopup>
+}
+
+
+
 @code {
-    // props
+    // props    
+    [Parameter] public EventCallback<bool> ReloadNav { get; set; }
 
     // fields
+    private bool _showLoginPopup;
 
     // methods
-    private async Task OnSignIn()
+    private void OnSignIn()
     {
-        try
-        {
-            _nav.NavigateTo("/login");            
-        }
-        catch (Exception ex)
-        {
+        _showLoginPopup = true;
+    }
 
-        }
+    private void OnReloadLoginPopup(bool isLoginPopupShowing)
+    {
+        _showLoginPopup = isLoginPopupShowing;
+        StateHasChanged();
     }
 }
