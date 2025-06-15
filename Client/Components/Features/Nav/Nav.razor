@@ -7,17 +7,17 @@
 @inject IAuthService _AuthService
 @inject IResourceService _ResourceService
 
-@if (CurrentUser != null && CurrentUser.IsAuthenticated)
+@if (CurrentUser == null || !CurrentUser.IsAuthenticated)
 {
+	@* shows when not loged-in *@
+	<LogoutNav ReloadNav="@OnReloadNav"></LogoutNav>
+}
+else
+{	
 	@* shows when loged-in *@
 	<CascadingValue Value="@CurrentUser" Name="CurrentUser">
 		<LoginNav ReloadNav="@OnReloadNav"></LoginNav>
 	</CascadingValue>
-}
-else
-{
-	@* shows when not loged-in *@
-	<LogoutNav ReloadNav="@OnReloadNav"></LogoutNav>
 }
 
 @code {

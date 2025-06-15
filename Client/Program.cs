@@ -27,7 +27,6 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAPIService, APIService>(); 
 builder.Services.AddScoped<IResourceService, ResourceService>();
-builder.Services.AddScoped<INavService, NavService>(); 
 
 builder.Services.AddHttpClient("ApiClient", options =>
 {

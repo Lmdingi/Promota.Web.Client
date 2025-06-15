@@ -1,23 +1,34 @@
 ﻿@inject IAuthService _authService
 @inject JWTAuthenticationStateProvider _AuthStateProvider
 
+<EditForm Model="@loginModel" OnValidSubmit="OnLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-    <div class="modal-backdrop fade show"></div>
+    <div class="modal-backdrop fade show"></div>    
 
     <div class="modal d-block" tabindex="-1">
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Login</h5>
-                    <button type="button" class="btn-close" @onclick="OnCancel"></button> 
+                    <button type="button" class="btn-close" @onclick="OnCancel"></button>
                 </div>
 
                 <div class="modal-body">
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+
                     <div class="mb-3">
-                        <input class="form-control" @bind="Email" placeholder="Email" />
+                        <input class="form-control" @bind="loginModel.Email" placeholder="Email" />
+                        <ValidationMessage For="@(() => loginModel.Email)" />
                     </div>
                     <div class="mb-3">
-                        <input type="password" class="form-control" @bind="Password" placeholder="Password" />
+                        <input type="password" class="form-control" @bind="loginModel.Password" placeholder="Password" />
+                        <ValidationMessage For="@(() => loginModel.Password)" />
                     </div>
 
                     <div class="d-flex justify-content-between small">
@@ -27,12 +38,13 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" @onclick="OnCancel">Cancel</button>
-                    <button class="btn btn-primary" @onclick="Login">Login</button>
+                    <button type="button" class="btn btn-secondary" @onclick="OnCancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Login</button>
                 </div>
             </div>
         </div>
     </div>
+</EditForm>
 
 
 @code {
@@ -41,19 +53,25 @@
     [Parameter] public EventCallback<bool> ShowLoginPopup { get; set; }
 
     // fields
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    private string errorMessage = string.Empty;
+    private LoginRequestDto loginModel = new();
 
     // ctors
 
     // methods
-    private async Task Login()
+    private async Task OnLogin()
     {
-        // TODO: Add your login logic here
-        var status = await _authService.Login(Email, Password);
+        try
+        {
+            var status = await _authService.Login(loginModel);
 
-        await ReloadNav.InvokeAsync(status);
-        await ShowLoginPopup.InvokeAsync(!status);
+            await ReloadNav.InvokeAsync(status);
+            await ShowLoginPopup.InvokeAsync(!status);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
     }
 
     private async Task OnCancel()

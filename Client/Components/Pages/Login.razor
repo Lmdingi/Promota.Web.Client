@@ -126,7 +126,7 @@
     {
         try
         {
-            var status = await _authService.Login(Email, Password);
+            var status = await _authService.Login(new(){Email = Email, Password = Password});
 
             if (status)
             {
