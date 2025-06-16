@@ -20,11 +20,16 @@ namespace Services
             _aPIService = aPIService;
         }
 
-        // methods
-        public async Task<bool> Verify()
+        public Task<bool> Verify()
         {
-            var result = await _aPIService.GetAsync("Resource/Verify");
-            return result.IsSuccessStatusCode;
+            throw new NotImplementedException();
         }
+
+        // methods
+        //public async Task<bool> Verify()
+        //{
+        //    var result = await _aPIService.GetAsync("Resource/Verify");
+        //    return result.IsSuccessStatusCode;
+        //}
     }
 }

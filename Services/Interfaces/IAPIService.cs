@@ -8,7 +8,7 @@ namespace Services.Interfaces
 {
     public interface IAPIService
     {
-        Task<HttpResponseMessage> GetAsync(string endpoint);
-        Task<HttpResponseMessage> PostAsync(string endpoint, object obj);
+        //Task<HttpResponseMessage> GetAsync(string endpoint);
+        Task<T?> PostAsync<T>(string endpoint, object obj);
     }
 }

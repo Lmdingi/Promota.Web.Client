@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Services.Models.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +9,8 @@ namespace Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<bool> Login(string email, string password);
-        Task<bool> Logout();
-        Task<bool> RefreshTokenAsync();
+        Task<bool> Login(LoginRequestDto loginModel);
+        //Task<bool> Logout();
+        //Task<bool> RefreshTokenAsync();
     }
 }
