@@ -1,9 +1,10 @@
 ﻿<div class="menu position-absolute top-100 end-0 bg-white border rounded shadow mt-2 p-2" style="width: 250px; z-index: 1000;">
     <ul style="list-style: none; margin: 0; padding: 10px;">
-        <LogoutOption ReloadNav="ReloadNav"></LogoutOption>
+        <LogoutOption OnNavReload="OnNavReload"></LogoutOption>
     </ul>
 </div>
 
 @code {
-    [Parameter] public EventCallback<bool> ReloadNav { get; set; }
+    [Parameter]
+    public EventCallback<Alert> OnNavReload { get; set; }
 }

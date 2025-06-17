@@ -8,24 +8,31 @@
 </li>
 
 @code {
-	[Parameter] public EventCallback<bool> ReloadNav { get; set; }
+	[Parameter]
+	public EventCallback<Alert> OnNavReload { get; set; }
 
 	private async Task Logout()
 	{
 		try
 		{
-			// var status = await _authService.Logout();
-			// await ReloadNav.InvokeAsync(!status);
+			var status = await _authService.Logout();
+
+			if (!status)
+			{
+				throw new Exception();
+			}
+
+			await OnNavReload.InvokeAsync(new Alert("Logout Successful", "You have logged out successfully.", AlertType.Success));		
 		}
 		catch (InvalidOperationException ex)
 		{
 			_logger.LogError($"Logout failed: {ex.Message}", ex);
-			// errorMessage = ex.Message;
+			await OnNavReload.InvokeAsync(new Alert("Logout Failed", ex.Message, AlertType.Error));
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError($"Logout failed: {ex.Message}", ex);
-			// errorMessage = "Login failed: An unexpected error occurred.";
+			await OnNavReload.InvokeAsync(new Alert("Logout Failed", "An error occurred while trying to log out. Please try again.", AlertType.Error));
 		}
     }
 }

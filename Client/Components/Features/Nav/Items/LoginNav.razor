@@ -1,5 +1,6 @@
 ﻿@attribute [Authorize]
 @rendermode InteractiveServer
+@inject JWTAuthenticationStateProvider _AuthStateProvider
 
 <AuthorizeView>
     ﻿<div class="d-flex align-items-center gap-3 p-2">
@@ -26,7 +27,7 @@
 
             @if (_isProfileMenuOpen)
             {
-                <ProfileMenu ReloadNav="ReloadNav"></ProfileMenu>
+                <ProfileMenu OnNavReload="OnNavReload"></ProfileMenu>
             }
         </div>    
         
@@ -37,17 +38,18 @@
     </div>
 </AuthorizeView>
 
-@code {
-    // props
-    [CascadingParameter(Name = "CurrentUser")]
+@code {    
+    [Parameter]
+    public EventCallback<Alert> OnNavReload { get; set; }
     public User? CurrentUser { get; set; }
 
-    [Parameter] public EventCallback<bool> ReloadNav { get; set; }
-
-    // fields
     private bool _isProfileMenuOpen = false;
 
-    // methods
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentUser = await _AuthStateProvider.GetCurrentUserState();
+    }
+
     private void ToggleProfileMenu()
     {
         _isProfileMenuOpen = !_isProfileMenuOpen;

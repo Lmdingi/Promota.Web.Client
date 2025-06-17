@@ -1,0 +1,36 @@
+﻿a@rendermode InteractiveServer
+
+@if (Alert?.Type == AlertType.Error)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="alert alert-danger d-flex justify-content-between align-items-center shadow-sm rounded-3 px-4  fixed-top m-3" role="alert" style="z-index: 1055;">
+        <div>
+            <strong>@Alert.Title:</strong> @Alert.Message
+        </div>
+        <button type="button" class="btn-close" @onclick="DismissError" aria-label="Close"></button>
+    </div>
+}
+
+@if (Alert?.Type == AlertType.Success)
+{
+    <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm rounded-3 px-4 fixed-top m-3" role="alert" style="z-index: 1055;">
+        <div>
+            <strong>@Alert.Title:</strong> @Alert.Message
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Alert? Alert { get; set; }
+
+    [Parameter]
+    public EventCallback<Alert?> OnAlertChanged { get; set; }
+
+    private async Task DismissError()
+    {
+        Alert = null;
+        await OnAlertChanged.InvokeAsync(Alert);
+    }
+}
+

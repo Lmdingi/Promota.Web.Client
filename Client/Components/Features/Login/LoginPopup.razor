@@ -49,25 +49,23 @@
 
 
 @code {
-    // props
-    [Parameter] public EventCallback<bool> ReloadNav { get; set; }
-    [Parameter] public EventCallback<bool> ShowLoginPopup { get; set; }
+    [Parameter] public EventCallback ShowLoginPopup { get; set; }
 
-    // fields
     private string errorMessage = string.Empty;
     private LoginRequestDto loginModel = new();
 
-    // ctors
-
-    // methods
     private async Task OnLogin()
     {
         try
         {
             var status = await _authService.Login(loginModel);
+            if (!status)
+            {
+                throw new Exception();
+            }
 
-            await ReloadNav.InvokeAsync(status);
-            await ShowLoginPopup.InvokeAsync(!status);
+            await ShowLoginPopup.InvokeAsync();
+
         }
         catch (InvalidOperationException ex)
         {

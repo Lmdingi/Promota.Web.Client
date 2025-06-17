@@ -7,27 +7,26 @@
 
 @if (_showLoginPopup)
 {
-    <LoginPopup ReloadNav="ReloadNav" ShowLoginPopup="@OnReloadLoginPopup"></LoginPopup>
+    <LoginPopup ShowLoginPopup="@OnReloadLoginPopup"></LoginPopup>
 }
 
 
 
 @code {
-    // props    
-    [Parameter] public EventCallback<bool> ReloadNav { get; set; }
+    [Parameter] public EventCallback<Alert> OnNavReload { get; set; }
 
-    // fields
     private bool _showLoginPopup;
 
-    // methods
     private void OnSignIn()
     {
         _showLoginPopup = true;
     }
 
-    private void OnReloadLoginPopup(bool isLoginPopupShowing)
+    private async Task OnReloadLoginPopup()
     {
-        _showLoginPopup = isLoginPopupShowing;
+        _showLoginPopup = false;
         StateHasChanged();
+        
+        await OnNavReload.InvokeAsync(new Alert("Login Successful", "You have logged in successfully.", AlertType.Success));         
     }
 }

@@ -7,42 +7,55 @@
 @inject IAuthService _AuthService
 @inject IResourceService _ResourceService
 
-@if (CurrentUser == null || !CurrentUser.IsAuthenticated)
+@if (_currentUser == null || !_currentUser.IsAuthenticated)
 {
-	@* shows when not loged-in *@
-	<LogoutNav ReloadNav="@OnReloadNav"></LogoutNav>
+	<LogoutNav OnNavReload="@HandleNavReload"></LogoutNav>
 }
 else
 {	
-	@* shows when loged-in *@
-	<CascadingValue Value="@CurrentUser" Name="CurrentUser">
-		<LoginNav ReloadNav="@OnReloadNav"></LoginNav>
-	</CascadingValue>
+	<LoginNav OnNavReload="@HandleNavReload"></LoginNav>
+}
+
+@if(Alert != null)
+{
+	<AlertModal Alert="@Alert" OnAlertChanged="HandleAlertChanged"></AlertModal>
 }
 
 @code {
-	// props	
-	public User? CurrentUser { get; set; }
+	public Alert? Alert { get; set; }
 
-	// fields
+	private User? _currentUser = null;
 	private bool _showLoginPopup;
 
-	// methods
 	protected override async Task OnInitializedAsync()
 	{
-		CurrentUser = await _AuthStateProvider.GetCurrentUserState();
+		_currentUser = await _AuthStateProvider.GetCurrentUserState();
 	}
 
-	private async Task OnReloadNav(bool isAuthenticated)
+	private async Task HandleNavReload(Alert alert)
 	{
-		if (isAuthenticated)
+		if (alert.Title.Contains("Logout"))
 		{
-			CurrentUser = await _AuthStateProvider.GetCurrentUserState();
+			_currentUser.IsAuthenticated = false;
 		}
 		else
 		{
-			CurrentUser = null;
+			_currentUser = await _AuthStateProvider.GetCurrentUserState();
 		}
+
+		await HandleAlertChanged(alert);
+	}
+
+	private async Task HandleAlertChanged(Alert? alert)
+	{
+		Alert = alert;
 		StateHasChanged();
+
+		if (alert != null && alert.Type == AlertType.Success)
+		{
+			await Task.Delay(3000);
+			Alert = null;
+			StateHasChanged();
+		}
 	}
 }
