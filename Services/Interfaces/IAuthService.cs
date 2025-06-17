@@ -10,7 +10,7 @@ namespace Services.Interfaces
     public interface IAuthService
     {
         Task<bool> Login(LoginRequestDto loginModel);
-        //Task<bool> Logout();
+        Task<bool> Logout();
         //Task<bool> RefreshTokenAsync();
     }
 }

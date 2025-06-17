@@ -38,50 +38,36 @@ namespace Services
         #region Login
         public async Task<bool> Login(LoginRequestDto loginModel)
         {
-            try
+            var response = await _aPIService.PostAsync<LoginResponseDto>("Auth/Login", loginModel);
+            
+            if(response == null)
             {
-                var response = await _aPIService.PostAsync<LoginResponseDto>("Auth/Login", loginModel);
+                return false;
+            }
 
-                await _accessTokenService.RemoveToken();
-                await _accessTokenService.SetToken(response?.AccessToken ?? "");
-                await _refreshTokenService.Set(response?.RefreshToken ?? "");
+            await _accessTokenService.RemoveToken();
+            await _accessTokenService.SetToken(response?.AccessToken ?? "");
+            await _refreshTokenService.Set(response?.RefreshToken ?? "");            
 
-                return true;
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new InvalidOperationException($"Login failed: {ex.Message}", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Login failed: An unexpected error occurred.", ex);
-            }
+            return true;      
         }
         #endregion
 
         #region Logout
-        //public async Task<bool> Logout()
-        //{
-        //    try
-        //    {
-        //        var refreshToken = await _refreshTokenService.Get();
-        //        _client.DefaultRequestHeaders.Add("Cookie", $"refreshtoken={refreshToken}");
-        //        var responseMessage = await _client.PostAsync("Auth/Logout",null);
+        public async Task<bool> Logout()
+        {  
+            var isLogedout = await _aPIService.PostAsync<bool>("Auth/Logout", null);
+            
+            if (!isLogedout)
+            {
+                return false;               
+            }
 
-        //        if (responseMessage.IsSuccessStatusCode)
-        //        {
-        //            await _accessTokenService.RemoveToken();
-        //            await _refreshTokenService.Remove();
-        //            //_navManager.NavigateTo("/", forceLoad: true);
-        //        }
+            await _accessTokenService.RemoveToken();
+            await _refreshTokenService.Remove();
 
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return false;
-        //    }
-        //}
+            return true;
+        }
         #endregion
 
         #region Refresh (remove)

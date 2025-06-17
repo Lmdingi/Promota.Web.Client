@@ -1,3 +1,4 @@
+using Client;
 using Client.Components;
 using Client.Security;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -27,6 +28,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAPIService, APIService>(); 
 builder.Services.AddScoped<IResourceService, ResourceService>();
+builder.Services.AddSingleton<GlobalErrorService>();
 
 builder.Services.AddHttpClient("ApiClient", options =>
 {

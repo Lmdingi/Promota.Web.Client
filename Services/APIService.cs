@@ -67,24 +67,25 @@ namespace Services
         #region PostAsync
         public async Task<T?> PostAsync<T>(string endpoint, object obj)
         {
-            await AddAccessToken();
+            await AddTokens();
             
             var response = await _client.PostAsJsonAsync(endpoint, obj);
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 await RefreshTokenAsync();
+                await AddTokens();
                 response = await _client.PostAsJsonAsync(endpoint, obj);                    
             }  
             
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
-                throw new InvalidOperationException(problem?.Title ?? "Bad Request");
+                throw new InvalidOperationException((problem?.Title + " "+ problem?.Detail) ?? "Bad Request");
             }
             else if (!response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.BadRequest)
             {
                 var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-                throw new InvalidOperationException(problem?.Detail ?? "An unexpected error occurred.");
+                throw new InvalidOperationException((problem?.Title + " " + problem?.Detail) ?? "An unexpected error occurred.");
             }
             
             var content = await response.Content.ReadAsStringAsync();
@@ -95,20 +96,28 @@ namespace Services
         #endregion
 
         #region Helpers
-        private async Task AddAccessToken()
+        private async Task AddTokens()
         {
             var token = await _accessTokenService.GetToken();
-            if (token != null)
+            if (!string.IsNullOrWhiteSpace(token))
             {
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var refreshToken = await _refreshTokenService.Get();
+            if (!string.IsNullOrWhiteSpace(refreshToken))
+            {
+                if (_client.DefaultRequestHeaders.Contains("Cookie"))
+                {
+                    _client.DefaultRequestHeaders.Remove("Cookie");
+                }
+
+                _client.DefaultRequestHeaders.Add("Cookie", $"refreshtoken={refreshToken}");
             }
         }
 
         private async Task RefreshTokenAsync()
         {
-            var refreshToken = await _refreshTokenService.Get();
-            _client.DefaultRequestHeaders.Add("Cookie", $"refreshtoken={refreshToken}");
-
             var responseMessage = await _client.PostAsync("Auth/Refresh", null);
 
             var token = await responseMessage.Content.ReadAsStringAsync();
@@ -117,13 +126,6 @@ namespace Services
                 var result = JsonConvert.DeserializeObject<LoginResponseDto>(token);
 
                 await _accessTokenService.SetToken(result.AccessToken);
-                await _refreshTokenService.Set(result.RefreshToken);
-
-                token = await _accessTokenService.GetToken();
-                if (token != null)
-                {
-                    _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                }
             }
         }
         #endregion

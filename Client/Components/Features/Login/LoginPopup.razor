@@ -1,5 +1,6 @@
 ﻿@inject IAuthService _authService
 @inject JWTAuthenticationStateProvider _AuthStateProvider
+@inject ILogger<LoginPopup> _logger
 
 <EditForm Model="@loginModel" OnValidSubmit="OnLogin">
     <DataAnnotationsValidator />
@@ -68,9 +69,15 @@
             await ReloadNav.InvokeAsync(status);
             await ShowLoginPopup.InvokeAsync(!status);
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Login failed: {ex.Message}", ex);
+            errorMessage = ex.Message;
+        }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            _logger.LogError($"Login failed: {ex.Message}", ex);
+            errorMessage = "Login failed: An unexpected error occurred.";
         }
     }
 

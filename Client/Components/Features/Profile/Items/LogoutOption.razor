@@ -1,4 +1,5 @@
 ﻿@inject IAuthService _authService
+@inject ILogger<LogoutOption> _logger
 
 <li style="padding: 8px 10px;" >
 	<button class="btn btn-outline-danger w-100 text-start py-2" @onclick="Logout">
@@ -16,9 +17,15 @@
 			// var status = await _authService.Logout();
 			// await ReloadNav.InvokeAsync(!status);
 		}
+		catch (InvalidOperationException ex)
+		{
+			_logger.LogError($"Logout failed: {ex.Message}", ex);
+			// errorMessage = ex.Message;
+		}
 		catch (Exception ex)
 		{
-
+			_logger.LogError($"Logout failed: {ex.Message}", ex);
+			// errorMessage = "Login failed: An unexpected error occurred.";
 		}
     }
 }
