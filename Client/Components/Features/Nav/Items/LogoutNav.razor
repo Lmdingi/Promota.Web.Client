@@ -2,12 +2,17 @@
 
 ﻿<div class="d-flex gap-2">
     <button class="btn btn-primary" @onclick="OnSignIn">Sign In</button>
-    <button class="btn btn-outline-primary">Register</button>
+    <button class="btn btn-outline-primary" @onclick="OnRegisterIn">Register</button>
 </div>
 
 @if (_showLoginPopup)
 {
     <LoginPopup ShowLoginPopup="@OnReloadLoginPopup"></LoginPopup>
+}
+
+@if (_showRegisterPopup)
+{
+    <RegisterPopup ShowRegisterPopup="OnReloadRegisterPopup"></RegisterPopup>
 }
 
 
@@ -16,17 +21,38 @@
     [Parameter] public EventCallback<Alert> OnNavReload { get; set; }
 
     private bool _showLoginPopup;
+    private bool _showRegisterPopup;
 
     private void OnSignIn()
     {
         _showLoginPopup = true;
     }
 
-    private async Task OnReloadLoginPopup()
+    private void OnRegisterIn()
+    {
+        _showRegisterPopup = true;
+    }
+
+    private async Task OnReloadLoginPopup(bool isLoginSuccessful)
     {
         _showLoginPopup = false;
         StateHasChanged();
-        
-        await OnNavReload.InvokeAsync(new Alert("Login Successful", "You have logged in successfully.", AlertType.Success));         
+
+        if (isLoginSuccessful)
+        {
+            await OnNavReload.InvokeAsync(new Alert("Login Successful", "You have logged in successfully.", AlertType.Success));
+        }
+
+    }
+
+    private async Task OnReloadRegisterPopup(bool isRegisterSuccessful)
+    {
+        _showRegisterPopup = false;
+        StateHasChanged();
+
+        if (isRegisterSuccessful)
+        {
+            await OnNavReload.InvokeAsync(new Alert("Register Successful", "You have registered successfully.", AlertType.Success));
+        }        
     }
 }

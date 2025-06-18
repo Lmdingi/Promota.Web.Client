@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Features\Login\Items\" />
     <Folder Include="Logs\" />
   </ItemGroup>
 

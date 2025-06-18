@@ -9,8 +9,9 @@ namespace Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<bool> Login(LoginRequestDto loginModel);
-        Task<bool> Logout();
+        Task<bool> RegisterAsync(RegisterRequestDto loginModel);
+        Task<bool> LoginAsync(LoginRequestDto loginModel);
+        Task<bool> LogoutAsync();
         //Task<bool> RefreshTokenAsync();
     }
 }

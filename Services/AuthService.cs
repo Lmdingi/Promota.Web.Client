@@ -35,8 +35,25 @@ namespace Services
         }
 
         // methods 
+        #region Register
+        public async Task<bool> RegisterAsync(RegisterRequestDto registerModel)
+        {
+            var response = await _aPIService.PostAsync<LoginResponseDto>("Auth/Register", registerModel);
+
+            if (response == null)
+            {
+                return false;
+            }
+
+            await _accessTokenService.RemoveToken();
+            await _accessTokenService.SetToken(response?.AccessToken ?? "");
+            await _refreshTokenService.Set(response?.RefreshToken ?? "");
+
+            return true;
+        }
+        #endregion
         #region Login
-        public async Task<bool> Login(LoginRequestDto loginModel)
+        public async Task<bool> LoginAsync(LoginRequestDto loginModel)
         {
             var response = await _aPIService.PostAsync<LoginResponseDto>("Auth/Login", loginModel);
             
@@ -54,7 +71,7 @@ namespace Services
         #endregion
 
         #region Logout
-        public async Task<bool> Logout()
+        public async Task<bool> LogoutAsync()
         {  
             var isLogedout = await _aPIService.PostAsync<bool>("Auth/Logout", null);
             
@@ -67,7 +84,7 @@ namespace Services
             await _refreshTokenService.Remove();
 
             return true;
-        }
+        }        
         #endregion
 
         #region Refresh (remove)
