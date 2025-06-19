@@ -72,7 +72,7 @@ namespace Services
             var response = await _client.PostAsJsonAsync(endpoint, obj);
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                await RefreshTokenAsync();
+                await RefreshJwtTokenByRefreshTokenAsync();
                 await AddTokens();
                 response = await _client.PostAsJsonAsync(endpoint, obj);                    
             }  
@@ -116,7 +116,7 @@ namespace Services
             }
         }
 
-        private async Task RefreshTokenAsync()
+        private async Task RefreshJwtTokenByRefreshTokenAsync()
         {
             var responseMessage = await _client.PostAsync("Auth/Refresh", null);
 

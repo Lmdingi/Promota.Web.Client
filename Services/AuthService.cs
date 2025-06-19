@@ -86,37 +86,5 @@ namespace Services
             return true;
         }        
         #endregion
-
-        #region Refresh (remove)
-        //public async Task<bool> RefreshTokenAsync()
-        //{
-        //    try
-        //    {
-        //        var refreshToken = await _refreshTokenService.Get();
-        //        _client.DefaultRequestHeaders.Add("Cookie", $"refreshtoken={refreshToken}");
-        //        var responseMessage = await _client.PostAsync("Auth/Refresh", null);
-
-        //        if (responseMessage.IsSuccessStatusCode)
-        //        {
-        //            var token = await responseMessage.Content.ReadAsStringAsync();
-        //            if (!string.IsNullOrEmpty(token))
-        //            {
-        //                var result = JsonConvert.DeserializeObject<LoginResponseDto>(token);
-
-        //                await _accessTokenService.SetToken(result.AccessToken);
-        //                await _refreshTokenService.Set(result.RefreshToken);
-
-        //                return true;
-        //            }                    
-        //        }
-
-        //        return false;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return false;
-        //    }
-        //}
-        #endregion
     }
 }

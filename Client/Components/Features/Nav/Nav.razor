@@ -34,7 +34,7 @@ else
 
 	private async Task HandleNavReload(Alert alert)
 	{
-		if (alert.Title.Contains("Logout"))
+		if (alert.Title == "Logout Successful")
 		{
 			_currentUser.IsAuthenticated = false;
 		}
