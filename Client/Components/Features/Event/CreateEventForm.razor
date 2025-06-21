@@ -1,0 +1,44 @@
+﻿
+@inject ILogger<LoginPopup> _logger
+
+<EditForm Model="@_eventModel" OnValidSubmit="CreateEvent">
+    <DataAnnotationsValidator />
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger">@_errorMessage</div>
+    }
+    
+    <CascadingValue Value="_eventModel" Name="_eventModel">
+        <EventBasicInfo @ref="_eventBasicInfo"></EventBasicInfo>
+    </CascadingValue>
+
+
+    <div class="d-grid">
+        <button type="submit" class="btn btn-success btn-lg">Create Event</button>
+    </div>
+</EditForm>
+
+@code {
+    private Event? _eventModel = new Event();
+    private EventBasicInfo _eventBasicInfo;
+    private string _errorMessage = string.Empty;
+
+    private async Task CreateEvent()
+    {
+        try
+        {
+            _eventBasicInfo.UseUpdatedValues();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError($"Create event failed: {ex.Message}", ex);
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Create event failed: {ex.Message}", ex);
+            _errorMessage = ex.Message;
+        }
+    }
+}

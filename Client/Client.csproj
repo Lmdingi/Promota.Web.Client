@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Features\Event\Items\" />
     <Folder Include="Logs\" />
   </ItemGroup>
 

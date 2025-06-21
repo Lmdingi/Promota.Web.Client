@@ -1,0 +1,59 @@
+﻿@page "/promote"
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<div class="card shadow-lg mb-4 border-0 rounded-4" >
+   
+    <div class="card-footer bg-white border-top-0 px-4 pt-3">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link @((activeTab == "new") ? "active" : "")" @onclick="@(() => SetActiveTab("new"))">New</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @((activeTab == "events") ? "active" : "")" @onclick="@(() => SetActiveTab("events"))">Events</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @((activeTab == "analytics") ? "active" : "")" @onclick="@(() => SetActiveTab("analytics"))">Analytics</a>
+            </li>
+        </ul>
+
+        <div class="p-3 border rounded-bottom rounded-end">
+            @if (activeTab == "new")
+            {
+                <AuthorizeView Roles="Guest">
+                    <Authorized>
+                        <CreateEventForm></CreateEventForm>
+                    </Authorized>
+
+                    <NotAuthorized>
+                        <AccessDenied></AccessDenied>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
+            else if (activeTab == "events")
+            {
+                <p><strong>Events:</strong> View all events you've created. Subtabs: All, Upcoming, Past Events.</p>
+            }
+            else if (activeTab == "analytics")
+            {
+                <p><strong>Analytics:</strong> Track attendance, views, engagement, and ratings per event. (future).</p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string activeTab = "new";
+
+    private void SetActiveTab(string tab)
+    {
+        if (activeTab == tab)
+        {
+            activeTab = "";
+        }
+        else
+        {
+            activeTab = tab;
+        }
+    }
+}

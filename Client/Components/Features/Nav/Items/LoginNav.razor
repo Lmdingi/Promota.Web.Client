@@ -1,10 +1,13 @@
 ﻿@attribute [Authorize]
 @rendermode InteractiveServer
 @inject JWTAuthenticationStateProvider _AuthStateProvider
+@inject NavigationManager Navigation
+
+
 
 <AuthorizeView>
     ﻿<div class="d-flex align-items-center gap-3 p-2">
-        <button class="btn btn-primary d-flex align-items-center gap-1">
+        <button class="btn btn-primary d-flex align-items-center gap-1" @onclick="GoToPromotePage">
             <i class="bi bi-calendar-plus"></i> Promote
         </button>
 
@@ -59,4 +62,10 @@
     {
         _isProfileMenuOpen = false;
     }
+
+    private void GoToPromotePage()
+    {
+        Navigation.NavigateTo("/promote");
+    }
+
 }
