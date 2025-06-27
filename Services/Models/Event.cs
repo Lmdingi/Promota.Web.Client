@@ -10,12 +10,12 @@ namespace Services.Models
 {
     public class Event
     {
-        // <!-- Event Title -->
+        // Event Title
         [Required]
         public string Title { get; set; } =  string.Empty;
 
-        // <!-- Event Date and Time -->
-        public string TimeZone { get; set; } = TimeZoneInfo.GetSystemTimeZones().ToList().First().DisplayName;
+        // Event Date and Time
+        public string TimeZone { get; set; } = TimeZoneInfo.Local.Id;
 
         [Required]
         [Display(Name = "Start Date")]
@@ -24,17 +24,20 @@ namespace Services.Models
 
         public DateTime? EndDate { get; set; }
 
-        // <!-- Location Mode Selection -->
+        // Location Mode Selection
         public bool IsRomote { get; set; }
 
         public string? RemoteLink { get; set; }
 
         public string? PhysicalLocation { get; set; }
 
-        //   <!-- Pricing Section -->
+        // Pricing Section
         public string? Currency { get; set; }
         public decimal Price { get; set; }
         public string? TicketLink { get; set; }
+
+        // Creator Infor Section
+        public UserModel Creator { get; set; }
     }
 
     public class FutureDateAttribute : ValidationAttribute

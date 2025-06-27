@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Client.Security;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Services.Interfaces;
@@ -23,22 +25,44 @@ namespace Services
         private readonly NavigationManager _navManager;
         private readonly IRefreshTokenService _refreshTokenService;
         private readonly HttpClient _client;
+        private readonly JWTAuthenticationStateProvider _authStateProvider;
 
         // ctors
-        public AuthService(IAPIService aPIService,IAccessTokenService accessTokenService, NavigationManager navManager, IHttpClientFactory httpClientFactory, IRefreshTokenService refreshTokenService)
+        public AuthService(
+            IAPIService aPIService,
+            IAccessTokenService accessTokenService,
+            NavigationManager navManager,
+            IHttpClientFactory httpClientFactory,
+            IRefreshTokenService refreshTokenService,
+            AuthenticationStateProvider authStateProvider // <-- add this
+        )
         {
             _aPIService = aPIService;
             _accessTokenService = accessTokenService;
             _navManager = navManager;
             _refreshTokenService = refreshTokenService;
             _client = httpClientFactory.CreateClient("ApiClient");
+            _authStateProvider = (JWTAuthenticationStateProvider)authStateProvider; // <-- cast to your custom one
         }
 
         // methods 
         #region Register
-        public async Task<bool> RegisterAsync(RegisterRequestDto registerModel)
+        public async Task<string> RegisterAsync(RegisterRequestDto registerModel)
         {
-            var response = await _aPIService.PostAsync<LoginResponseDto>("Auth/Register", registerModel);
+            var confirmationUrl = await _aPIService.PostAsync<string>("Auth/Register", registerModel);
+
+            if (string.IsNullOrWhiteSpace(confirmationUrl))
+            {
+                return string.Empty;
+            }
+
+            return confirmationUrl;
+        }
+        #endregion
+        #region Login
+        public async Task<bool> LoginAsync(LoginRequestDto loginModel)
+        {
+            var response = await _aPIService.PostAsync<LoginResponseDto>("Auth/Login", loginModel);
 
             if (response == null)
             {
@@ -46,45 +70,37 @@ namespace Services
             }
 
             await _accessTokenService.RemoveToken();
-            await _accessTokenService.SetToken(response?.AccessToken ?? "");
-            await _refreshTokenService.Set(response?.RefreshToken ?? "");
+            await _accessTokenService.SetToken(response.AccessToken ?? "");
+            await _refreshTokenService.Set(response.RefreshToken ?? "");
+
+            // Notify state change
+            _authStateProvider.MarkUserAsAuthenticated(response.AccessToken ?? "");
 
             return true;
         }
+
         #endregion
-        #region Login
-        public async Task<bool> LoginAsync(LoginRequestDto loginModel)
+
+        #region Logout
+        public async Task<bool> LogoutAsync()
         {
-            var response = await _aPIService.PostAsync<LoginResponseDto>("Auth/Login", loginModel);
-            
-            if(response == null)
+            var isLogedout = await _aPIService.PostAsync<bool>("Auth/Logout", null);
+
+            if (!isLogedout)
             {
                 return false;
             }
 
             await _accessTokenService.RemoveToken();
-            await _accessTokenService.SetToken(response?.AccessToken ?? "");
-            await _refreshTokenService.Set(response?.RefreshToken ?? "");            
-
-            return true;      
-        }
-        #endregion
-
-        #region Logout
-        public async Task<bool> LogoutAsync()
-        {  
-            var isLogedout = await _aPIService.PostAsync<bool>("Auth/Logout", null);
-            
-            if (!isLogedout)
-            {
-                return false;               
-            }
-
-            await _accessTokenService.RemoveToken();
             await _refreshTokenService.Remove();
 
+            // Notify state change
+            _authStateProvider.MarkUserAsLoggedOut();
+
+            _navManager.NavigateTo("/");
             return true;
-        }        
+        }
+
         #endregion
     }
 }

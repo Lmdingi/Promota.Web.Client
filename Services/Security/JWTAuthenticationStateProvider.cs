@@ -10,7 +10,7 @@ namespace Client.Security
     public class JWTAuthenticationStateProvider : AuthenticationStateProvider
     {
         // props
-        public User CurrentUser { get; set; }        
+        public UserModel CurrentUser { get; set; }
 
         // fields
         private readonly IAccessTokenService _accessTokenService;
@@ -28,7 +28,7 @@ namespace Client.Security
             {
                 var token = await _accessTokenService.GetToken();
 
-                if(string.IsNullOrWhiteSpace(token))
+                if (string.IsNullOrWhiteSpace(token))
                 {
                     return await MarkAsUnauthorize();
                 }
@@ -36,7 +36,7 @@ namespace Client.Security
                 var readJWT = new JwtSecurityTokenHandler().ReadJwtToken(token);
                 var identity = new ClaimsIdentity(readJWT.Claims, "JWT");
                 var principal = new ClaimsPrincipal(identity);
-                
+
                 return await Task.FromResult(new AuthenticationState(principal));
             }
             catch (Exception ex)
@@ -60,7 +60,7 @@ namespace Client.Security
             }
         }
 
-        public async Task<User?> GetCurrentUserState()
+        public async Task<UserModel?> GetCurrentUserState()
         {
             try
             {
@@ -69,13 +69,14 @@ namespace Client.Security
 
                 if (user.Identity != null && user.Identity.IsAuthenticated)
                 {
-                    var currentuser = new User();
-                    currentuser.IsAuthenticated = user.Identity.IsAuthenticated;
-                    currentuser.UserName = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
-                    currentuser.ProfilePictureUrl = "https://reddoorescape.com/wp-content/uploads/DP.png";
-
-                    CurrentUser = currentuser;
-                }               
+                    CurrentUser = new UserModel
+                    {
+                        Id = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value,
+                        IsAuthenticated = user.Identity.IsAuthenticated,
+                        UserName = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value,
+                        ProfilePictureUrl = "https://reddoorescape.com/wp-content/uploads/DP.png"
+                    };
+                }
 
                 return CurrentUser;
             }
@@ -83,7 +84,28 @@ namespace Client.Security
             {
                 return null;
             }
-            
+
         }
+
+        public void MarkUserAsAuthenticated(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            var identity = new ClaimsIdentity(jwtToken.Claims, "JWT");
+            var principal = new ClaimsPrincipal(identity);
+
+            var authState = Task.FromResult(new AuthenticationState(principal));
+            NotifyAuthenticationStateChanged(authState);
+        }
+
+        public void MarkUserAsLoggedOut()
+        {
+            var identity = new ClaimsIdentity(); // empty
+            var principal = new ClaimsPrincipal(identity);
+            var authState = Task.FromResult(new AuthenticationState(principal));
+            NotifyAuthenticationStateChanged(authState);
+        }
+
     }
 }

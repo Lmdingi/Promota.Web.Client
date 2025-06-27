@@ -28,6 +28,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAPIService, APIService>(); 
 builder.Services.AddScoped<IResourceService, ResourceService>();
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IUserService, UserService>(); 
 
 builder.Services.AddHttpClient("ApiClient", options =>
 {
@@ -35,6 +37,12 @@ builder.Services.AddHttpClient("ApiClient", options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("EmailVerifiedOnly", policy =>
+        policy.RequireClaim("email_verified", "true"));
+});
+
 builder.Services.AddAuthentication()
     .AddScheme<CustomOption, JWTAuthenticationHandler>("JWTAuth", options =>
     {

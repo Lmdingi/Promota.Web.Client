@@ -1,23 +1,16 @@
-﻿@page "/"
-@rendermode InteractiveServer
-@inject IAuthService _authService
+﻿@inject IAuthService _authService
 @inject NavigationManager _nav
 @inject JWTAuthenticationStateProvider _AuthStateProvider
 @inject IAccessTokenService _AccessTokenService
 @inject IAuthService _AuthService
 @inject IResourceService _ResourceService
 @inject IEventService _eventService
-@inject ILogger<Home> _logger
+@inject ILogger<MyEvents> _logger
 @inject IUserService _userService
 
 @foreach (var eventModel in _events)
 {
     <EventCard Event="eventModel"></EventCard>
-}
-
-@if (Alert != null)
-{
-    <AlertModal Alert="@Alert" OnAlertChanged="HandleAlertChanged"></AlertModal>
 }
 
 @code {
@@ -31,22 +24,21 @@
         {
             if (firstRender)
             {
-                _events = await _eventService.GetEventsAsync();
+                _currentUser = await _AuthStateProvider.GetCurrentUserState();
+                _events = await _eventService.GetEventsByUserIdAsync(_currentUser.Id);
                 StateHasChanged();
             }
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogError(ex, "API error in GetEvents");
+            _logger.LogError(ex, "API error in GetEventsByUserId");
             await HandleAlertChanged(new Alert("Event failed", ex.Message, AlertType.Error));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Client logic error in GetEvents");
+            _logger.LogError(ex, "Client logic error in GetEventsByUserId");
             await HandleAlertChanged(new Alert("Event failed", "Get events failed: An unexpected error occurred.", AlertType.Error));
         }
-
-        // await JS.InvokeVoidAsync("scrollToTop");
     }
 
     private async Task HandleAlertChanged(Alert? alert)

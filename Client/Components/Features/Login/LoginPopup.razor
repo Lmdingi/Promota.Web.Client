@@ -23,8 +23,8 @@
                     }
 
                     <div class="mb-3">
-                        <input class="form-control" @bind="_loginModel.Email" placeholder="Email" />
-                        <ValidationMessage For="@(() => _loginModel.Email)" />
+                        <input class="form-control" @bind="_loginModel.Identifier" placeholder="Email/Username" />
+                        <ValidationMessage For="@(() => _loginModel.Identifier)" />
                     </div>
 
                     <div class="mb-3">
@@ -69,12 +69,12 @@
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogError($"Login failed: {ex.Message}", ex);
+            _logger.LogError(ex, "API error in Login");
             _errorMessage = ex.Message;
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Login failed: {ex.Message}", ex);
+            _logger.LogError(ex, "Client error in Login");
             _errorMessage = "Login failed: An unexpected error occurred.";
         }
     }

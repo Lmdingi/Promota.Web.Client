@@ -69,13 +69,16 @@
     {
         try
         {
-            var status = await _authService.RegisterAsync(_registerModel);
-            if (!status)
+            var confirmationUrl = await _authService.RegisterAsync(_registerModel);
+
+            if (string.IsNullOrWhiteSpace(confirmationUrl))
             {
-                throw new Exception();
+                // popup login
+
+                // take user to update profile
             }
 
-            await ShowRegisterPopup.InvokeAsync(true);
+            await ShowRegisterPopup.InvokeAsync(false);
 
         }
         catch (InvalidOperationException ex)

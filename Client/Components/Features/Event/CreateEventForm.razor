@@ -1,7 +1,8 @@
-﻿
-@inject ILogger<LoginPopup> _logger
+﻿@inject IEventService _eventService
+@inject ILogger<CreateEventForm> _logger
+@inject IJSRuntime JS
 
-<EditForm Model="@_eventModel" OnValidSubmit="CreateEvent">
+<EditForm Model="@_eventModel" OnValidSubmit="OnCreateEvent">
     <DataAnnotationsValidator />
 
     @if (!string.IsNullOrEmpty(_errorMessage))
@@ -15,30 +16,55 @@
 
 
     <div class="d-grid">
-        <button type="submit" class="btn btn-success btn-lg">Create Event</button>
+        <AuthorizeView Context="authContext" Policy="EmailVerifiedOnly">
+            <Authorized>
+                <button type="submit" class="btn btn-success btn-lg">Promote Event</button>
+            </Authorized>
+            <NotAuthorized>
+                <button type="button" class="btn btn-secondary btn-lg" disabled>Promote Event</button>
+                <a href="/account/verify" class="btn btn-outline-danger mt-2">
+                    Please verify your account to promote events
+                </a>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </EditForm>
 
 @code {
-    private Event? _eventModel = new Event();
+    [Parameter]
+    public EventCallback<Alert?> OnAlertChanged { get; set; }
+
+    private Event _eventModel = new Event();
     private EventBasicInfo _eventBasicInfo;
     private string _errorMessage = string.Empty;
 
-    private async Task CreateEvent()
+    private async Task OnCreateEvent()
     {
         try
         {
             _eventBasicInfo.UseUpdatedValues();
+            string? EventId = await _eventService.CreatEventAsync(_eventModel);
+
+            if (!string.IsNullOrWhiteSpace(EventId))
+            {
+                await OnAlertChanged.InvokeAsync(new Alert("Event Successful", "You have Created Event successfully.", AlertType.Success));
+                Event newEvent = new Event();
+                _eventModel = newEvent;
+            }
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogError($"Create event failed: {ex.Message}", ex);
+            _logger.LogError(ex, "API error in CreateEvent");
             _errorMessage = ex.Message;
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Create event failed: {ex.Message}", ex);
-            _errorMessage = ex.Message;
+            _logger.LogError(ex, "Client logic error in CreateEvent");
+            _errorMessage = "Create event failed: An unexpected error occurred.";
         }
+
+        await JS.InvokeVoidAsync("scrollToTop");
     }
+
+
 }

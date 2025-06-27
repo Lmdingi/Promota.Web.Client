@@ -7,7 +7,7 @@
     <div class="card-footer bg-white border-top-0 px-4 pt-3">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link @((activeTab == "new") ? "active" : "")" @onclick="@(() => SetActiveTab("new"))">New</a>
+                <a class="nav-link @((activeTab == "promote") ? "active" : "")" @onclick="@(() => SetActiveTab("promote"))">Promote</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link @((activeTab == "events") ? "active" : "")" @onclick="@(() => SetActiveTab("events"))">Events</a>
@@ -18,21 +18,13 @@
         </ul>
 
         <div class="p-3 border rounded-bottom rounded-end">
-            @if (activeTab == "new")
+            @if (activeTab == "promote")
             {
-                <AuthorizeView Roles="Guest">
-                    <Authorized>
-                        <CreateEventForm></CreateEventForm>
-                    </Authorized>
-
-                    <NotAuthorized>
-                        <AccessDenied></AccessDenied>
-                    </NotAuthorized>
-                </AuthorizeView>
+                <CreateEventForm OnAlertChanged="HandleAlertChanged"></CreateEventForm>
             }
             else if (activeTab == "events")
             {
-                <p><strong>Events:</strong> View all events you've created. Subtabs: All, Upcoming, Past Events.</p>
+                <MyEvents></MyEvents>
             }
             else if (activeTab == "analytics")
             {
@@ -42,8 +34,14 @@
     </div>
 </div>
 
+@if (Alert != null)
+{
+    <AlertModal Alert="@Alert" OnAlertChanged="HandleAlertChanged"></AlertModal>
+}
+
 @code {
-    private string activeTab = "new";
+    public Alert? Alert { get; set; }
+    private string activeTab = "promote";
 
     private void SetActiveTab(string tab)
     {
@@ -54,6 +52,20 @@
         else
         {
             activeTab = tab;
+        }
+    }
+
+    private async Task HandleAlertChanged(Alert? alert)
+    {
+        Alert = alert;
+        StateHasChanged();
+
+        if (alert != null && alert.Type == AlertType.Success)
+        {
+            activeTab = "events";
+            await Task.Delay(3000);
+            Alert = null;
+            StateHasChanged();
         }
     }
 }
