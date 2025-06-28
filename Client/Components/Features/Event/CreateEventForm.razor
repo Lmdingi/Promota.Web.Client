@@ -1,6 +1,7 @@
 ﻿@inject IEventService _eventService
 @inject ILogger<CreateEventForm> _logger
 @inject IJSRuntime JS
+@inject NavigationManager _navigationManager
 
 <EditForm Model="@_eventModel" OnValidSubmit="OnCreateEvent">
     <DataAnnotationsValidator />
@@ -18,10 +19,12 @@
     <div class="d-grid">
         <AuthorizeView Context="authContext" Policy="EmailVerifiedOnly">
             <Authorized>
-                <button type="submit" class="btn btn-success btn-lg">Promote Event</button>
+                <button type="submit" class="btn btn-success btn-lg">
+                    @(string.IsNullOrWhiteSpace(_eventModel.Id) ? "Create Event" : "Update Event")
+                </button>
             </Authorized>
             <NotAuthorized>
-                <button type="button" class="btn btn-secondary btn-lg" disabled>Promote Event</button>
+                <button type="button" class="btn btn-secondary btn-lg" disabled>Create Event</button>
                 <a href="/account/verify" class="btn btn-outline-danger mt-2">
                     Please verify your account to promote events
                 </a>
@@ -38,14 +41,52 @@
     private EventBasicInfo _eventBasicInfo;
     private string _errorMessage = string.Empty;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                var uri = _navigationManager.ToAbsoluteUri(_navigationManager.Uri);
+                var query = QueryHelpers.ParseQuery(uri.Query);
+
+                if (query.TryGetValue("eventId", out var eventId))
+                {
+                    _eventModel = await _eventService.GetEventByIdAsync(eventId);
+                    StateHasChanged();
+                }
+            }
+
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in GetEvent");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client logic error in GetEvent");
+        }  
+    }
+
     private async Task OnCreateEvent()
     {
         try
         {
-            _eventBasicInfo.UseUpdatedValues();
-            string? EventId = await _eventService.CreatEventAsync(_eventModel);
+            string eventId = "";
 
-            if (!string.IsNullOrWhiteSpace(EventId))
+            _eventBasicInfo.UseUpdatedValues();
+
+            if (string.IsNullOrWhiteSpace(_eventModel.Id))
+            {
+                eventId = await _eventService.CreatEventAsync(_eventModel);
+            }
+            else
+            {
+                eventId = await _eventService.UpdateEventAsync(_eventModel);
+            }
+
+
+            if (!string.IsNullOrWhiteSpace(eventId))
             {
                 await OnAlertChanged.InvokeAsync(new Alert("Event Successful", "You have Created Event successfully.", AlertType.Success));
                 Event newEvent = new Event();
@@ -65,6 +106,4 @@
 
         await JS.InvokeVoidAsync("scrollToTop");
     }
-
-
 }

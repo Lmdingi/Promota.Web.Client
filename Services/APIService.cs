@@ -110,6 +110,41 @@ namespace Services
         }
         #endregion
 
+        #region PutAsync
+        public async Task<T?> PutAsync<T>(string endpoint, object obj)
+        {
+            await AddTokens();
+
+            var response = await _client.PutAsJsonAsync(endpoint, obj);
+
+            // Retry once on 401 Unauthorized
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                await RefreshJwtTokenByRefreshTokenAsync();
+                await AddTokens();
+                response = await _client.PutAsJsonAsync(endpoint, obj);
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var problem = await ReadJsonProblemFromResponse(response);
+                throw new InvalidOperationException(problem);
+            }
+
+            // Handle success
+            var content = await response.Content.ReadAsStringAsync();
+
+            // For bool, int, double, etc., try direct conversion
+            if (typeof(T).IsPrimitive || typeof(T) == typeof(decimal) || typeof(T) == typeof(bool) || typeof(T) == typeof(string))
+            {
+                return (T)Convert.ChangeType(content, typeof(T));
+            }
+
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(content);
+            return result;
+        }
+        #endregion
+
         #region Helpers
         private async Task<string> ReadJsonProblemFromResponse(HttpResponseMessage response)
         {
@@ -164,6 +199,8 @@ namespace Services
                 _authStateProvider.MarkUserAsAuthenticated(result.AccessToken ?? "");
             }
         }
+
+
         #endregion
     }
 }

@@ -10,6 +10,7 @@ namespace Services.Models
 {
     public class Event
     {
+        public string? Id { get; set; }
         // Event Title
         [Required]
         public string Title { get; set; } =  string.Empty;

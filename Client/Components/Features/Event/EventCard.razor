@@ -4,6 +4,7 @@
 @inject IEventService _eventService
 @inject IUserService _userService
 @inject JWTAuthenticationStateProvider _AuthStateProvider
+@inject NavigationManager _navigationManager
 
 <style>
     .ticket-link-hover:hover {
@@ -81,7 +82,16 @@
                 </div>
             </div>
             <div class="text-end">
-                <small class="text-muted">👥 @followersCount</small>
+                @if (_currentUser != null && _currentUser.Id == Event.Creator.Id)
+                {
+                    <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" @onclick="OnEditTriggered">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                }
+                else
+                {
+                    <small class="text-muted">👥 @followersCount</small>
+                }
             </div>
         </div>
     </div>
@@ -132,6 +142,9 @@
 @code {
     [Parameter]
     public Event Event { get; set; }
+    [Parameter]
+    public EventCallback<string> OnEdit { get; set; }
+
     private UserModel? _currentUser = null;
 
     private string _activeTab = "";
@@ -180,6 +193,12 @@
         {
             _logger.LogError(ex, "Client logic error in GetEvents");
         }
+    }
+
+    private void OnEditTriggered()
+    {
+        _navigationManager.NavigateTo($"/promote?eventId={Event.Id}");
+        OnEdit.InvokeAsync("promote");
     }
 
     private void SetActiveTab(string tab)

@@ -10,11 +10,14 @@
 
 @foreach (var eventModel in _events)
 {
-    <EventCard Event="eventModel"></EventCard>
+    <EventCard Event="eventModel" OnEdit="OnEdit"></EventCard>
 }
 
 @code {
+    [Parameter]
+    public EventCallback<string> OnEdit { get; set; }
     public Alert? Alert { get; set; }
+
     private UserModel? _currentUser = null;
     private List<Event> _events = new List<Event>();
 

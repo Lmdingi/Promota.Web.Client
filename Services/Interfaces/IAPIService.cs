@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Services.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,6 @@ namespace Services.Interfaces
     {
         Task<T> GetAsync<T>(string endpoint);
         Task<T?> PostAsync<T>(string endpoint, object obj);
+        Task<T?> PutAsync<T>(string endpoint, object obj);
     }
 }

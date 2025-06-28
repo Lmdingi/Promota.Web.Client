@@ -1,6 +1,7 @@
 ﻿@page "/promote"
 @attribute [Authorize]
 @rendermode InteractiveServer
+@inject NavigationManager _navigationManager
 
 <div class="card shadow-lg mb-4 border-0 rounded-4" >
    
@@ -9,11 +10,17 @@
             <li class="nav-item">
                 <a class="nav-link @((activeTab == "promote") ? "active" : "")" @onclick="@(() => SetActiveTab("promote"))">Promote</a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link @((activeTab == "events") ? "active" : "")" @onclick="@(() => SetActiveTab("events"))">Events</a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link @((activeTab == "analytics") ? "active" : "")" @onclick="@(() => SetActiveTab("analytics"))">Analytics</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link @((activeTab == "going") ? "active" : "")" @onclick="@(() => SetActiveTab("going"))">Going</a>
             </li>
         </ul>
 
@@ -24,11 +31,15 @@
             }
             else if (activeTab == "events")
             {
-                <MyEvents></MyEvents>
+                <MyEvents OnEdit="SetActiveTab"></MyEvents>
             }
             else if (activeTab == "analytics")
             {
                 <p><strong>Analytics:</strong> Track attendance, views, engagement, and ratings per event. (future).</p>
+            }
+            else if (activeTab == "going")
+            {
+                <p><strong>Going:</strong> List of events the user marked to attend. (future).</p>
             }
         </div>
     </div>
@@ -45,6 +56,17 @@
 
     private void SetActiveTab(string tab)
     {
+        if (tab != "promote")
+        {
+            var uri = _navigationManager.ToAbsoluteUri(_navigationManager.Uri);
+            var query = QueryHelpers.ParseQuery(uri.Query);
+
+            if (query.TryGetValue("eventId", out var eventId))
+            {
+                _navigationManager.NavigateTo("/promote", forceLoad: false, replace: true);
+            }
+        }
+
         if (activeTab == tab)
         {
             activeTab = "";

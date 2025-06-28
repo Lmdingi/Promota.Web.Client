@@ -141,6 +141,12 @@
             .DistinctBy(r => r.ISOCurrencySymbol)
             .OrderBy(r => r.ISOCurrencySymbol)
             .ToList();
+
+        if (!string.IsNullOrWhiteSpace(Event.Id))
+        {
+            _isFree = Event.Price == 0;
+            _hasPhysicalLocation = !string.IsNullOrWhiteSpace(Event.PhysicalLocation);
+        }
     }
 
     public void UseUpdatedValues()

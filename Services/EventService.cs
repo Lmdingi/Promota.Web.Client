@@ -18,10 +18,23 @@ namespace Services
             _aPIService = aPIService;
         }
 
+        public async Task<Event> GetEventByIdAsync(string id)
+        {
+            var response = await _aPIService.GetAsync<Event>($"Events/{id}");
+
+            return response;
+        }
+
         public async Task<List<Event>> GetEventsByUserIdAsync(string userId)
         {
             var response = await _aPIService.GetAsync<List<Event>>($"Events/user/{userId}");
 
+            return response;
+        }
+
+        public async Task<string> UpdateEventAsync(Event eventModel)
+        {
+            var response = await _aPIService.PutAsync<string>($"Events", eventModel);
             return response;
         }
 
