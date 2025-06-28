@@ -9,6 +9,7 @@ namespace Services.Interfaces
 {
     public interface IAPIService
     {
+        Task DeleteAsync(string endpoint);
         Task<T> GetAsync<T>(string endpoint);
         Task<T?> PostAsync<T>(string endpoint, object obj);
         Task<T?> PutAsync<T>(string endpoint, object obj);

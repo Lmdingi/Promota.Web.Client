@@ -84,9 +84,17 @@
             <div class="text-end">
                 @if (_currentUser != null && _currentUser.Id == Event.Creator.Id)
                 {
-                    <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" @onclick="OnEditTriggered">
-                        <i class="bi bi-pencil-fill"></i>
-                    </button>
+                    <div class="position-relative">
+                        <!-- Edit Button -->
+                        <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2" @onclick="OnEditTriggered">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+
+                        <!-- Delete Button -->
+                        <button class="btn btn-sm btn-light position-absolute top-0 end-0 me-5 m-2" @onclick="OnDeleteTriggered">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
                 }
                 else
                 {
@@ -144,6 +152,8 @@
     public Event Event { get; set; }
     [Parameter]
     public EventCallback<string> OnEdit { get; set; }
+    [Parameter]
+    public EventCallback<string> OnDelete { get; set; }
 
     private UserModel? _currentUser = null;
 
@@ -158,47 +168,41 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
         {
-            if (firstRender)
+            _currentUser = await _AuthStateProvider.GetCurrentUserState();
+
+            if (_currentUser == null || _currentUser.Id != Event.Creator.Id)
             {
-                _currentUser = await _AuthStateProvider.GetCurrentUserState();
-
-                if (_currentUser == null || _currentUser.Id != Event.Creator.Id)
+                if (Event.Currency != null)
                 {
-                    if (Event.Currency != null)
-                    {
-                        await ConvertCurrencyAsync(Event);
-                    }
-
-                    Event.StartDate = SetLocalTimeZone(Event.StartDate, Event.TimeZone);
-                    if (Event.EndDate != null)
-                    {
-                        Event.EndDate = SetLocalTimeZone((DateTime)Event.EndDate, Event.TimeZone);
-                    }
-                }
-                else
-                {
-                    _timeZone = Regex.Match(TimeZoneInfo.FindSystemTimeZoneById(Event.TimeZone).DisplayName, @"\(UTC[^\)]+\)").ToString();
+                    await ConvertCurrencyAsync(Event);
                 }
 
-                StateHasChanged();
+                Event.StartDate = SetLocalTimeZone(Event.StartDate, Event.TimeZone);
+                if (Event.EndDate != null)
+                {
+                    Event.EndDate = SetLocalTimeZone((DateTime)Event.EndDate, Event.TimeZone);
+                }
             }
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogError(ex, "API error in GetEvents");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Client logic error in GetEvents");
+            else
+            {
+                _timeZone = Regex.Match(TimeZoneInfo.FindSystemTimeZoneById(Event.TimeZone).DisplayName, @"\(UTC[^\)]+\)").ToString();
+            }
+
+            StateHasChanged();
         }
     }
 
-    private void OnEditTriggered()
+    private async Task OnEditTriggered()
     {
         _navigationManager.NavigateTo($"/promote?eventId={Event.Id}");
-        OnEdit.InvokeAsync("promote");
+        await OnEdit.InvokeAsync("promote");
+    }
+
+    private async Task OnDeleteTriggered(MouseEventArgs args)
+    {
+        await OnDelete.InvokeAsync(Event.Id);       
     }
 
     private void SetActiveTab(string tab)
@@ -250,4 +254,6 @@
         // Step 4: Output
         return localTime;
     }
+    
+ 
 }

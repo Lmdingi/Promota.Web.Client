@@ -145,6 +145,29 @@ namespace Services
         }
         #endregion
 
+        #region DeleteAsync
+        public async Task DeleteAsync(string endpoint)
+        {
+            await AddTokens();
+
+            var response = await _client.DeleteAsync(endpoint);
+
+            // Retry once on 401 Unauthorized
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                await RefreshJwtTokenByRefreshTokenAsync();
+                await AddTokens();
+                response = await _client.DeleteAsync(endpoint);
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var problem = await ReadJsonProblemFromResponse(response);
+                throw new InvalidOperationException(problem);
+            }
+        }
+        #endregion
+
         #region Helpers
         private async Task<string> ReadJsonProblemFromResponse(HttpResponseMessage response)
         {
@@ -199,8 +222,6 @@ namespace Services
                 _authStateProvider.MarkUserAsAuthenticated(result.AccessToken ?? "");
             }
         }
-
-
         #endregion
     }
 }

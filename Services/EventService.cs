@@ -18,6 +18,11 @@ namespace Services
             _aPIService = aPIService;
         }
 
+        public async Task DeleteEventByIdAsync(string id)
+        {
+             await _aPIService.DeleteAsync($"Events/{id}");
+        }
+
         public async Task<Event> GetEventByIdAsync(string id)
         {
             var response = await _aPIService.GetAsync<Event>($"Events/{id}");

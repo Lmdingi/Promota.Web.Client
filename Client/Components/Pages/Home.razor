@@ -12,7 +12,7 @@
 
 @foreach (var eventModel in _events)
 {
-    <EventCard Event="eventModel"></EventCard>
+    <EventCard Event="eventModel" OnDelete="HandleDelete"></EventCard>
 }
 
 @if (Alert != null)
@@ -59,6 +59,25 @@
             await Task.Delay(3000);
             Alert = null;
             StateHasChanged();
+        }
+    }
+
+    private async Task HandleDelete(string eventId)
+    {
+        try
+        {
+            await _eventService.DeleteEventByIdAsync(eventId);
+            var eventModel = _events.FirstOrDefault(x => x.Id == eventId);
+            _events.Remove(eventModel);
+            StateHasChanged();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in GetEvents");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client logic error in GetEvents");
         }
     }
 }

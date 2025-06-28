@@ -14,5 +14,6 @@ namespace Services.Interfaces
         Task<List<Event>> GetEventsAsync();
         Task<List<Event>> GetEventsByUserIdAsync(string userId);
         Task<Event> GetEventByIdAsync(string id);
+        Task DeleteEventByIdAsync(string id);
     }
 }

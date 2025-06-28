@@ -170,6 +170,11 @@
         {
             throw new InvalidOperationException("Location is required for non-remote events.");
         }
+        
+        if (_hasPhysicalLocation && string.IsNullOrWhiteSpace(Event.PhysicalLocation))
+        {
+            throw new InvalidOperationException("Location is required for in person events.");
+        }
 
         if (_isFree)
         {
