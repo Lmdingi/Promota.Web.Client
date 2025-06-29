@@ -97,7 +97,7 @@ namespace Services
             // Notify state change
             _authStateProvider.MarkUserAsLoggedOut();
 
-            _navManager.NavigateTo("/");
+            _navManager.NavigateTo("/login");
             return true;
         }
 

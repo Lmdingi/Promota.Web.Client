@@ -1,4 +1,5 @@
-﻿@inject NavigationManager _nav
+﻿@inject NavigationManager _navigationManager
+@inject JWTAuthenticationStateProvider _AuthStateProvider
 
 ﻿<div class="d-flex gap-2">
     <button class="btn btn-primary" @onclick="OnSignIn">Sign In</button>
@@ -25,7 +26,8 @@
 
     private void OnSignIn()
     {
-        _showLoginPopup = true;
+        _navigationManager.NavigateTo("/login");
+        // _showLoginPopup = true;
     }
 
     private void OnRegisterIn()
