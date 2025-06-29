@@ -12,13 +12,16 @@
         <!-- Event Date and Time -->
         <div class="mb-3">  
             <!-- Timezone selector -->
-            <label class="form-label">Select Time Zone</label>
-            <select class="form-select shadow-sm" @bind="Event.TimeZone">
-                @foreach (var tz in _timeZones)
-                {                   
-                    <option value="@tz.Id">@tz.DisplayName</option>
-                }                
-            </select>
+               <div class="mb-3"> 
+                <label class="form-label">Select Time Zone</label>
+                <select class="form-select shadow-sm" @bind="Event.TimeZone">
+                
+                    @foreach (var tz in _timeZones)
+                    {                   
+                        <option value="@tz.Id">@tz.DisplayName</option>
+                    }                
+                </select>
+            </div>
 
             <!-- Start Date & Time -->
             <div class="row align-items-center mb-3">
