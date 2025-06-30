@@ -1,21 +1,24 @@
 ﻿@rendermode InteractiveServer
 @inject JWTAuthenticationStateProvider _AuthStateProvider
 @inject NavigationManager _navigationManager
+@inject GlobalEventCallBacks _globalEventCallBacks
 
 <header class="bg-white shadow-sm">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center border-bottom border-gray-200">
         <div class="flex items-center space-x-2">
-            <span class="material-icons text-pink-500 text-3xl">local_activity</span>
-            <span class="text-2xl font-bold text-gray-800">PROMOTA</span>
+            <a class="flex items-center space-x-2" href="/">
+                <span class="material-icons text-pink-500 text-3xl">local_activity</span>
+                <span class="text-2xl font-bold text-gray-800">PROMOTA</span>
+            </a>
         </div>
 
-        @if (userModel == null || !userModel.IsAuthenticated)
+        @if (UserModel == null || !UserModel.IsAuthenticated)
         {
             <div class="space-x-2">
-                <button class="text-gray-600 hover:text-pink-500 px-4 py-2 rounded-md text-sm font-medium" @onclick="OnLogin">
+                <button class="text-gray-600 hover:text-pink-500 px-4 py-2 rounded-md text-sm font-medium" @onclick="@((_ => HandleAccount("signIn")))">
                     Sign In
                 </button>
-                <button class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md text-sm font-medium" @onclick="OnLogin">
+                <button class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md text-sm font-medium" @onclick="@((_ => HandleAccount("signUp")))">
                     Register
                 </button>
             </div>
@@ -62,16 +65,19 @@
 </header>
 
 @code {
-    public UserModel userModel { get; set; }
+    [CascadingParameter(Name = "UserModel")]
+    public UserModel UserModel { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        userModel = await _AuthStateProvider.GetCurrentUserState();
+        UserModel = await _AuthStateProvider.GetCurrentUserState();
     }
 
-    private void OnLogin()
+    private void HandleAccount(string buttonText)
     {
-        _navigationManager.NavigateTo("/login");
+        _navigationManager.NavigateTo("/account");
+        _globalEventCallBacks.RaiseStringEvent(buttonText);
     }
 }
