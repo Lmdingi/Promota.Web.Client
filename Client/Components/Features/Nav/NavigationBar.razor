@@ -12,83 +12,34 @@
             </a>
         </div>
 
-        @if (UserModel == null || !UserModel.IsAuthenticated)
+        @if (_userModel == null || !_userModel.IsAuthenticated)
         {
-            <div class="space-x-2">
-                <button class="text-gray-600 hover:text-pink-500 px-4 py-2 rounded-md text-sm font-medium" @onclick="@((_ => HandleAccount("signIn")))">
-                    Sign In
-                </button>
-                <button class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-md text-sm font-medium" @onclick="@((_ => HandleAccount("signUp")))">
-                    Register
-                </button>
-            </div>
+            <UnAuthorizedUserNav></UnAuthorizedUserNav>
         }
         else
         {
-            <div class="flex items-center space-x-4">
-                <button class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-md flex items-center text-sm">
-                    <span class="material-icons mr-2">add_circle_outline</span> Promote
-                </button>
-                <button class="text-gray-600 hover:text-pink-500 flex items-center text-sm font-medium">
-                    <span class="material-icons mr-1">event_available</span> Going
-                </button>
-                <button class="text-gray-600 hover:text-pink-500 relative">
-                    <span class="material-icons">notifications</span>
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">3</span>
-                </button>
-                <div class="relative">
-                    <button class="flex items-center space-x-2 text-gray-600 hover:text-pink-500 focus:outline-none" id="userMenuButton">
-                        <img alt="User avatar" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc3WSbUkMWeQ5DqwbsE75otJLohmePjWAxBx2G8TGsi1vGNLwnDP6spJCjjl5DwjR1bkbYunPkuwI-v3eKWIZyPui6V2fiFBTPq0QiZ9dcr-EJh3JGwIDhXm2UrfhXlUmu11k-HzDFWJ0gmgWJh2V7YCPUuI0JEgxaoOIo5AZx7gM2HCKvtW8C9i-j0DgcThIEbEE01BcWzA9d3BvC_94SedAJA5bZ_iPHXZpOCpestSWRJAjYo7wHMp2bKxXld05WH1yP8udZuEM" />
-                        <span class="text-sm font-medium">John Doe</span>
-                        <span class="material-icons text-gray-400">expand_more</span>
-                    </button>
-                    <div class="popup absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-1 z-50" id="userMenuPopup">
-                        <a class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-500 hover:text-white" href="#">
-                            <span class="material-icons mr-3">account_circle</span> Profile
-                        </a>
-                        <a class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-500 hover:text-white" href="#">
-                            <span class="material-icons mr-3">settings</span> Settings
-                        </a>
-                        <a class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-500 hover:text-white" href="#">
-                            <span class="material-icons mr-3">event</span> My Events
-                        </a>
-                        <hr class="my-1 border-gray-200" />
-                        <a class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-500 hover:text-white" href="#">
-                            <span class="material-icons mr-3">logout</span> Sign Out
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <CascadingValue Value="_userModel">
+                <AuthorizedUserNav></AuthorizedUserNav>
+            </CascadingValue>   
         }
 
     </div>
 </header>
 
 @code {
-    [CascadingParameter(Name = "UserModel")]
-    public UserModel UserModel { get; set; }
+    public UserModel? _userModel;
 
-
-    protected override async Task OnInitializedAsync()
+    protected async override Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
-
-        UserModel = await _AuthStateProvider.GetCurrentUserState();
-
-        _globalEventCallBacks.OnUserAuthSwitchNav += HandleSwitchNav;
+        _globalEventCallBacks.OnGetCurrentUserStateForNav += HandleGetCurrentUserState;
+        HandleGetCurrentUserState();
     }
 
-    private void HandleAccount(string buttonText)
-    {
-        _navigationManager.NavigateTo("/account");
-        _globalEventCallBacks.RaiseStringEvent(buttonText);
-    }
-
-    private void HandleSwitchNav()
+    private void HandleGetCurrentUserState()
     {
         _ = InvokeAsync(async () =>
         {
-            UserModel = await _AuthStateProvider.GetCurrentUserState();
+            _userModel = await _AuthStateProvider.GetCurrentUserState();
             StateHasChanged();
         });
     }

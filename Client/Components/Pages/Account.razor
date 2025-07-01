@@ -34,7 +34,7 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _globalEventCallBacks.OnTabSelection += HandleTabSelection;
+        _globalEventCallBacks.OnRegisterOrSignInTabSelection += HandleTabSelection;
         _globalEventCallBacks.OnLoadingSpinner += HandleLoadingSpinner;
     }
     
@@ -58,7 +58,7 @@
 
     public void Dispose()
     {
-        _globalEventCallBacks.OnTabSelection -= HandleTabSelection;
+        _globalEventCallBacks.OnRegisterOrSignInTabSelection -= HandleTabSelection;
         _globalEventCallBacks.OnLoadingSpinner += HandleLoadingSpinner;
     }
 

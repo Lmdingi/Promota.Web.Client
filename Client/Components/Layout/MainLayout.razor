@@ -1,13 +1,10 @@
 ﻿@inherits LayoutComponentBase
-@inject NavigationManager _navigationManager
 
 <!-- Navigation Bar -->
 <NavigationBar></NavigationBar>
 
 <!-- Full Screen -->
 <div class="min-h-screen flex flex-col pt-[70px]">
-
-
     <!-- Main Content Area Below Navbar -->
     <div class="flex-grow grid grid-cols-1 md:grid-cols-4  overflow-hidden w-full" style="height: calc(100vh - 70px);">
          <!-- Side Bar -->
@@ -20,7 +17,7 @@
         <!-- Main Content -->
         <div class="px-3 md:col-span-3 py-8  w-full overflow-y-auto h-full">
             <main class="md:col-span-3 space-y-6">
-                @Body
+                    @Body
             </main>
         </div>
     </div>

@@ -5,23 +5,23 @@ namespace Client.GlobalEventCallBacks
 {
     public  class GlobalEventCallBacks
     {
-        public event Action<string>? OnTabSelection;
+        public event Action<string>? OnRegisterOrSignInTabSelection;
         public event Action<bool>? OnLoadingSpinner;
-        public event Action OnUserAuthSwitchNav;
+        public event Action OnGetCurrentUserStateForNav;
 
-        public void RaiseStringEvent(string value)
+        public void RaiseRegisterOrSignInTabSelectionEvent(string value)
         {
-            OnTabSelection?.Invoke(value);
+            OnRegisterOrSignInTabSelection?.Invoke(value);
         }
 
-        public void RaiseBoolEvent(bool value)
+        public void RaiseLoadingSpinnerEvent(bool value)
         {
             OnLoadingSpinner?.Invoke(value);
         }
 
-        public void RaiseSwitchNavEvent()
+        public void RaiseGetCurrentUserStateForNavEvent()
         {
-            OnUserAuthSwitchNav.Invoke();
+            OnGetCurrentUserStateForNav.Invoke();
         }
     }
 }

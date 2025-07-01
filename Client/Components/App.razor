@@ -1,6 +1,4 @@
-﻿@inject JWTAuthenticationStateProvider _authProvider
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -88,28 +86,17 @@
 </head>
 
 <body>
-    <CascadingValue Value="_userModel" Name="UserModel">
-        <Routes />
-    </CascadingValue>
+    <Routes />
 
     <script src="_framework/blazor.web.js"></script>
     <script src="/js/cookies.js"></script>
-
     <script>
         window.scrollToTop = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
-    </script>
-    
+    </script>    
 </body>
 
 </html>
 
-@code {
-    private UserModel? _userModel;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _userModel = await _authProvider.GetCurrentUserState();
-    }
-}

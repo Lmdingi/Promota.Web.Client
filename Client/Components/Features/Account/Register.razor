@@ -11,7 +11,6 @@
 
 <div class="tab-content active">
     <h2 class="text-center text-3xl font-extrabold text-gray-900 mb-2">Create an account</h2>
-
     <p class="text-center text-sm text-gray-600 mb-6">Join Promota and discover amazing events!</p>
 
     <EditForm Model="@_registerRequestDto" OnValidSubmit="HandleRegister">
@@ -107,7 +106,7 @@
 
         <p class="mt-4 text-center text-sm text-gray-500">
             Already have an account?
-            <button type="button" class="font-medium text-pink-600 hover:text-pink-500" @onclick="@((_ => HandleAccountTabs("signIn")))">Sign in</button>
+            <button type="button" class="font-medium text-pink-600 hover:text-pink-500" @onclick="@((_ => _globalEventCallBacks.RaiseRegisterOrSignInTabSelectionEvent("signIn")))">Sign in</button>
         </p>
 
         <div>
@@ -119,9 +118,6 @@
 </div>
 
 @code {
-    [CascadingParameter(Name = "UserModel")]
-    public UserModel? UserModel { get; set; }
-
     RegisterRequestDto _registerRequestDto = new RegisterRequestDto();
     private string _errorMessage = string.Empty;
     private bool _showConfirmPassword = false;
@@ -131,7 +127,7 @@
     {
         try
         {
-            HandleLoadingSpinner(true);
+            _globalEventCallBacks.RaiseLoadingSpinnerEvent(true);
             var isRegistered = await _authService.RegisterAsync(_registerRequestDto);
 
             if (isRegistered)
@@ -145,7 +141,7 @@
 
                 if (isLogedIn)
                 {
-                    HandleSwitchNav();
+                    _globalEventCallBacks.RaiseGetCurrentUserStateForNavEvent();
                     _navigationManager.NavigateTo("/welcome");
                 }
             }
@@ -165,25 +161,7 @@
             _errorMessage = "Register failed: An unexpected error occurred.";
         }
 
-        HandleLoadingSpinner(false);
-    }
-
-    private void HandleSwitchNav()
-    {
-
-        _globalEventCallBacks.RaiseSwitchNavEvent();
-    }
-
-    private void HandleLoadingSpinner(bool isLoading)
-    {
-
-        _globalEventCallBacks.RaiseBoolEvent(isLoading);
-    }
-
-    private void HandleAccountTabs(string buttonText)
-    {
-
-        _globalEventCallBacks.RaiseStringEvent(buttonText);
+        _globalEventCallBacks.RaiseLoadingSpinnerEvent(false);
     }
 
     private string GetContentClass(string tabName) =>

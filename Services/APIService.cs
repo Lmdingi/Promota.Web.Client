@@ -179,11 +179,11 @@ namespace Services
                 var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(json);
                 //var validationProblemDetails = JsonSerializer.Deserialize<ValidationProblemDetails>(json);
 
-                problem = $"{problemDetails?.Title + " " + problemDetails?.Detail}";
+                return  $"{(response.ReasonPhrase ?? problemDetails?.Title) + " " + problemDetails?.Detail}";
                 //problem = $"{validationProblemDetails?.Title + " " + validationProblemDetails?.Detail}";
             }
 
-            return $"{response.ReasonPhrase}: {problem}";
+            return problem;
         }
         private async Task AddTokens()
         {
