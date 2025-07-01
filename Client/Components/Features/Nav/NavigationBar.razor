@@ -3,7 +3,7 @@
 @inject NavigationManager _navigationManager
 @inject GlobalEventCallBacks _globalEventCallBacks
 
-<header class="bg-white shadow-sm">
+<header class="bg-white shadow-sm" style="position: fixed; top: 0; width: 100vw;">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center border-bottom border-gray-200">
         <div class="flex items-center space-x-2">
             <a class="flex items-center space-x-2" href="/">
@@ -68,16 +68,28 @@
     [CascadingParameter(Name = "UserModel")]
     public UserModel UserModel { get; set; }
 
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
         UserModel = await _AuthStateProvider.GetCurrentUserState();
+
+        _globalEventCallBacks.OnUserAuthSwitchNav += HandleSwitchNav;
     }
 
     private void HandleAccount(string buttonText)
     {
         _navigationManager.NavigateTo("/account");
         _globalEventCallBacks.RaiseStringEvent(buttonText);
+    }
+
+    private void HandleSwitchNav()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            UserModel = await _AuthStateProvider.GetCurrentUserState();
+            StateHasChanged();
+        });
     }
 }

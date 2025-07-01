@@ -1,5 +1,7 @@
 @inject GlobalEventCallBacks _globalEventCallBacks
 @inject IAuthService _authService
+@inject NavigationManager _navigationManager
+@inject JWTAuthenticationStateProvider _authProvider
 @inject ILogger<Register> _logger
 
 @if (!string.IsNullOrEmpty(_errorMessage))
@@ -54,21 +56,41 @@
 
         <div class="mb-3">
             <label class="block text-sm font-medium text-gray-700" for="signUpPassword">Password</label>
-            <div class="mt-1">
-                <InputText id="signUpPassword" type="password" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                           @bind-Value="_registerRequestDto.Password" placeholder="••••••••" />
+            <div class="mt-1 relative">
+                <InputText id="signUpPassword"
+                           type="@(_showPassword ? "text" : "password")"
+                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-10"
+                           @bind-Value="_registerRequestDto.Password"
+                           placeholder="••••••••" />
+                <button type="button"
+                        class="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm"
+                        @onclick="() => _showPassword = !_showPassword"
+                        tabindex="-1">
+                    @(_showPassword ? "Hide" : "Show")
+                </button>
                 <ValidationMessage For="@(() => _registerRequestDto.Password)" />
             </div>
         </div>
 
+
         <div class="mb-3">
             <label class="block text-sm font-medium text-gray-700" for="confirmPassword">Confirm Password</label>
-            <div class="mt-1">
-                <InputText id="confirmPassword" type="password" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                           @bind-Value="_registerRequestDto.ConfirmPassword" placeholder="••••••••" />
+            <div class="mt-1 relative">
+                <InputText id="confirmPassword"
+                           type="@(_showConfirmPassword ? "text" : "password")"
+                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-10"
+                           @bind-Value="_registerRequestDto.ConfirmPassword"
+                           placeholder="••••••••" />
+                <button type="button"
+                        class="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm"
+                        @onclick="() => _showConfirmPassword = !_showConfirmPassword"
+                        tabindex="-1">
+                    @(_showConfirmPassword ? "Hide" : "Show")
+                </button>
                 <ValidationMessage For="@(() => _registerRequestDto.ConfirmPassword)" />
             </div>
         </div>
+
 
         <div class="flex items-start">
             <div class="flex items-center h-5">
@@ -77,7 +99,7 @@
 
             <div class="ml-3 text-sm">
                 <label class="font-light text-gray-500" for="terms">
-                    I accept the <a class="font-medium text-pink-600 hover:underline" href="/terms">Terms and Conditions</a>
+                    I accept the <a class="font-medium text-pink-600 hover:underline" href="/terms" target="_blank">Terms and Conditions</a>
                 </label>
             </div>
         </div>
@@ -97,17 +119,40 @@
 </div>
 
 @code {
+    [CascadingParameter(Name = "UserModel")]
+    public UserModel? UserModel { get; set; }
+
     RegisterRequestDto _registerRequestDto = new RegisterRequestDto();
     private string _errorMessage = string.Empty;
-
+    private bool _showConfirmPassword = false;
+    private bool _showPassword = false;
 
     private async Task HandleRegister()
     {
         try
         {
             HandleLoadingSpinner(true);
-            var userId = await _authService.RegisterAsync(_registerRequestDto);
+            var isRegistered = await _authService.RegisterAsync(_registerRequestDto);
 
+            if (isRegistered)
+            {
+                var isLogedIn = await _authService.LoginAsync(
+                    new LoginRequestDto
+                    {
+                        Identifier = _registerRequestDto.Email, 
+                        Password = _registerRequestDto.Password
+                    });
+
+                if (isLogedIn)
+                {
+                    HandleSwitchNav();
+                    _navigationManager.NavigateTo("/welcome");
+                }
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
         catch (InvalidOperationException ex)
         {
@@ -121,6 +166,12 @@
         }
 
         HandleLoadingSpinner(false);
+    }
+
+    private void HandleSwitchNav()
+    {
+
+        _globalEventCallBacks.RaiseSwitchNavEvent();
     }
 
     private void HandleLoadingSpinner(bool isLoading)

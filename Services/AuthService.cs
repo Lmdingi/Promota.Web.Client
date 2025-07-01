@@ -47,16 +47,11 @@ namespace Services
 
         // methods 
         #region Register
-        public async Task<string> RegisterAsync(RegisterRequestDto registerRequestDto)
+        public async Task<bool> RegisterAsync(RegisterRequestDto registerRequestDto)
         {
-            var confirmationUrl = await _aPIService.PostAsync<string>("Auth/Register", registerRequestDto);
+            var isRegistered = await _aPIService.PostAsync<bool>("Auth/Register", registerRequestDto);
 
-            if (string.IsNullOrWhiteSpace(confirmationUrl))
-            {
-                return string.Empty;
-            }
-
-            return confirmationUrl;
+            return isRegistered;
         }
         #endregion
         #region Login

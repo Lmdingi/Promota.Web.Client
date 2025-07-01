@@ -69,14 +69,14 @@
     {
         try
         {
-            var confirmationUrl = await _authService.RegisterAsync(_registerModel);
+            // var confirmationUrl = await _authService.RegisterAsync(_registerModel);
 
-            if (string.IsNullOrWhiteSpace(confirmationUrl))
-            {
-                // popup login
+            // if (string.IsNullOrWhiteSpace(confirmationUrl))
+            // {
+            //     // popup login
 
-                // take user to update profile
-            }
+            //     // take user to update profile
+            // }
 
             await ShowRegisterPopup.InvokeAsync(false);
 

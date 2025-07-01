@@ -34,8 +34,8 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _globalEventCallBacks.OnString += HandleTabSelection;
-        _globalEventCallBacks.OnBool += HandleLoadingSpinner;
+        _globalEventCallBacks.OnTabSelection += HandleTabSelection;
+        _globalEventCallBacks.OnLoadingSpinner += HandleLoadingSpinner;
     }
     
     private void HandleLoadingSpinner(bool isLoading)
@@ -58,8 +58,8 @@
 
     public void Dispose()
     {
-        _globalEventCallBacks.OnString -= HandleTabSelection;
-        _globalEventCallBacks.OnBool += HandleLoadingSpinner;
+        _globalEventCallBacks.OnTabSelection -= HandleTabSelection;
+        _globalEventCallBacks.OnLoadingSpinner += HandleLoadingSpinner;
     }
 
     private void ShowTab(string tabName)

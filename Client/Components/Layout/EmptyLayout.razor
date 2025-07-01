@@ -1,33 +1,32 @@
 ﻿@inherits LayoutComponentBase
 
-<!-- Full Screen -->
-<div class="min-h-screen flex flex-col">
-    <!-- Navigation Bar -->
-    <NavigationBar></NavigationBar>
+<!-- Navigation Bar -->
+<NavigationBar></NavigationBar>
 
-    <!-- Main Content Area Below Navbar -->
-    <div class="  flex-grow grid overflow-hidden w-full" style="height: calc(100vh - 70px);">
-        <div class="  w-full overflow-y-auto h-full">
-            <!-- Main Content -->
-            <div class="min-h-screen flex flex-col">
-                <main>                   
-                        @Body
-                </main> 
-            </div>
+<!-- Page Wrapper (pushes footer to bottom if content is short) -->
+<div class="min-h-screen flex flex-col pt-[70px]">
 
-            <!-- Footer Content Area Below Navbar -->
-            <footer class="  bg-gray-800 text-white py-8">
-                <div class="container mx-auto px-4 text-center">
-                    <p>© 2025 Promota. All rights reserved.</p>
-                    <div class="mt-2">
-                        <a class="hover:text-pink-400 px-2" href="#">About Us</a>
-                        <a class="hover:text-pink-400 px-2" href="#">Contact</a>
-                        <a class="hover:text-pink-400 px-2" href="#">Privacy Policy</a>
-                        <a class="hover:text-pink-400 px-2" href="#">Terms of Service</a>
-                    </div>
+    <!-- Content & Footer Wrapper -->
+    <div class="flex flex-col flex-grow">
+
+        <!-- Main Content -->
+        <main class="flex-grow">
+            @Body
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8" style="height: 100px;">
+            <div class="container mx-auto px-4 text-center">
+                <p>© 2025 Promota. All rights reserved.</p>
+                <div class="mt-2">
+                    <a class="hover:text-pink-400 px-2" href="#">About Us</a>
+                    <a class="hover:text-pink-400 px-2" href="#">Contact</a>
+                    <a class="hover:text-pink-400 px-2" href="#">Privacy Policy</a>
+                    <a class="hover:text-pink-400 px-2" href="terms">Terms of Service</a>
                 </div>
-            </footer>
-        </div>
-    </div>
-</div>
+            </div>
+        </footer>
 
+    </div>
+
+</div>
