@@ -10,7 +10,6 @@ namespace Client.Security
     public class JWTAuthenticationStateProvider : AuthenticationStateProvider
     {
         // props
-        public UserModel CurrentUser { get; set; }
 
         // fields
         private readonly IAccessTokenService _accessTokenService;
@@ -66,10 +65,11 @@ namespace Client.Security
             {
                 var state = await GetAuthenticationStateAsync();
                 var user = state.User;
+                var currentUser = new UserModel();
 
                 if (user.Identity != null && user.Identity.IsAuthenticated)
                 {
-                    CurrentUser = new UserModel
+                    currentUser = new UserModel
                     {
                         Id = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value,
                         IsAuthenticated = user.Identity.IsAuthenticated,
@@ -78,7 +78,7 @@ namespace Client.Security
                     };
                 }
 
-                return CurrentUser;
+                return currentUser;
             }
             catch (Exception ex)
             {

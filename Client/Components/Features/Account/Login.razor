@@ -85,8 +85,8 @@
 
             if (isLogedIn)
             {
-                _navigationManager.NavigateTo("/");
                 _globalEventCallBacks.RaiseGetCurrentUserStateForNavEvent();
+                _navigationManager.NavigateTo("/");
             }
             else
             {

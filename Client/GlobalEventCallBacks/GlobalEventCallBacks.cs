@@ -7,7 +7,7 @@ namespace Client.GlobalEventCallBacks
     {
         public event Action<string>? OnRegisterOrSignInTabSelection;
         public event Action<bool>? OnLoadingSpinner;
-        public event Action OnGetCurrentUserStateForNav;
+        public event Action? OnGetCurrentUserStateForNav;
 
         public void RaiseRegisterOrSignInTabSelectionEvent(string value)
         {
@@ -21,7 +21,7 @@ namespace Client.GlobalEventCallBacks
 
         public void RaiseGetCurrentUserStateForNavEvent()
         {
-            OnGetCurrentUserStateForNav.Invoke();
+            OnGetCurrentUserStateForNav?.Invoke();
         }
     }
 }

@@ -1,3 +1,9 @@
+@inject GlobalEventCallBacks _globalEventCallBacks
+@inject IAuthService _authService
+@inject NavigationManager _navigationManager
+@inject JWTAuthenticationStateProvider _authProvider
+@inject ILogger<UserPopupOpions> _logger
+
 <div class="relative">
     <!-- Button -->
     <button @onclick="TogglePopup" class="flex items-center space-x-2 text-gray-600 hover:text-pink-500 focus:outline-none">
@@ -31,17 +37,49 @@
             <span class="material-icons mr-3">event</span> My Events
         </a>
         <hr class="my-1 border-gray-200" />
-        <a class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-500 hover:text-white" href="#">
+        <a class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-500 hover:text-white" @onclick="HandleLogout">
             <span class="material-icons mr-3">logout</span> Sign Out
         </a>
     </div>
 </div>
 
 @code {
-    [CascadingParameter]
+    [CascadingParameter(Name = "UserModel")]
     public UserModel? UserModel { get; set; }
 
+    private string _errorMessage = string.Empty;
     private bool isPopupVisible = false;
+
+    private async Task HandleLogout()
+    {
+        try
+        {
+            _globalEventCallBacks.RaiseLoadingSpinnerEvent(true);
+            var isLogedOut = await _authService.LogoutAsync();
+
+            if (isLogedOut)
+            {
+                _globalEventCallBacks.RaiseGetCurrentUserStateForNavEvent();
+                // _navigationManager.NavigateTo("/account");
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in Logout");
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client error in Logout");
+            _errorMessage = "Register failed: An unexpected error occurred.";
+        }
+
+        _globalEventCallBacks.RaiseLoadingSpinnerEvent(false);
+    }
 
     private void TogglePopup()
     {

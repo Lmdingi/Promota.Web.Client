@@ -2,6 +2,7 @@
 @layout EmptyLayout
 @rendermode InteractiveServer
 @inject GlobalEventCallBacks _globalEventCallBacks
+@implements IDisposable
 
 <LoadingSpinner IsLoading="@IsLoading" />
 
@@ -33,11 +34,10 @@
 
     protected override void OnInitialized()
     {
-        base.OnInitialized();
         _globalEventCallBacks.OnRegisterOrSignInTabSelection += HandleTabSelection;
         _globalEventCallBacks.OnLoadingSpinner += HandleLoadingSpinner;
     }
-    
+
     private void HandleLoadingSpinner(bool isLoading)
     {
         _ = InvokeAsync(() =>

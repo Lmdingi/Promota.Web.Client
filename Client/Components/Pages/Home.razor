@@ -8,6 +8,7 @@
 @inject IEventService _eventService
 @inject ILogger<Home> _logger
 @inject IUserService _userService
+@inject GlobalEventCallBacks _globalEventCallBacks
 
 
 
@@ -142,11 +143,32 @@
 
 
 
+@code {
+    public UserModel? _userModel;
+
+    protected async override Task OnInitializedAsync()
+    {
+       
+
+        // _globalEventCallBacks.OnGetCurrentUserStateForNav += HandleGetCurrentUserState;
+        // HandleGetCurrentUserState();
+    }
+
+    // private void HandleGetCurrentUserState()
+    // {
+    //     _ = InvokeAsync(async () =>
+    //     {
+    //         _userModel = await _AuthStateProvider.GetCurrentUserState();
+    //         StateHasChanged();
+    //     });
+
+    //     StateHasChanged();
+    // }
+}
 
 
 
-
-
+    
 
 
 @* @foreach (var eventModel in _events)

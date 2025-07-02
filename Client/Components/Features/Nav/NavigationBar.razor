@@ -2,6 +2,7 @@
 @inject JWTAuthenticationStateProvider _AuthStateProvider
 @inject NavigationManager _navigationManager
 @inject GlobalEventCallBacks _globalEventCallBacks
+@implements IDisposable
 
 <header class="bg-white shadow-sm" style="position: fixed; top: 0; width: 100vw;">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center border-bottom border-gray-200">
@@ -12,35 +13,44 @@
             </a>
         </div>
 
-        @if (_userModel == null || !_userModel.IsAuthenticated)
+        @if (_userModel != null && _userModel.IsAuthenticated)
         {
-            <UnAuthorizedUserNav></UnAuthorizedUserNav>
+            <CascadingValue Value="_userModel" Name="UserModel" IsFixed="false">
+                <AuthorizedUserNav></AuthorizedUserNav>
+            </CascadingValue>
+
         }
         else
         {
-            <CascadingValue Value="_userModel">
-                <AuthorizedUserNav></AuthorizedUserNav>
-            </CascadingValue>   
+            <UnAuthorizedUserNav></UnAuthorizedUserNav>
         }
 
     </div>
 </header>
 
 @code {
-    public UserModel? _userModel;
+    private UserModel? _userModel = null;
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        _globalEventCallBacks.OnGetCurrentUserStateForNav += HandleGetCurrentUserState;
-        HandleGetCurrentUserState();
+        _globalEventCallBacks.OnGetCurrentUserStateForNav += RefreshUser;
+        _userModel = await _AuthStateProvider.GetCurrentUserState();
     }
 
-    private void HandleGetCurrentUserState()
+    private async void RefreshUser()
     {
-        _ = InvokeAsync(async () =>
-        {
-            _userModel = await _AuthStateProvider.GetCurrentUserState();
-            StateHasChanged();
-        });
+        _userModel = await _AuthStateProvider.GetCurrentUserState();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _globalEventCallBacks.OnGetCurrentUserStateForNav -= RefreshUser;
+    }
+
+    protected override void OnParametersSet()
+    {
+        // This will be triggered when _userModel changes
+        Console.WriteLine("Nav User changed: " + _userModel?.IsAuthenticated);
     }
 }
