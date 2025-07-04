@@ -10,36 +10,101 @@
     {
         <div class="alert alert-danger">@_errorMessage</div>
     }
+
+    <EventBasicInfo Event="_eventModel"></EventBasicInfo>
+
+    <EventDateAndTimeInfo Event="_eventModel" @ref="_eventDateTimeInfoRef"></EventDateAndTimeInfo>
     
-    <CascadingValue Value="_eventModel" Name="_eventModel">
-        <EventBasicInfo @ref="_eventBasicInfo"></EventBasicInfo>
-    </CascadingValue>
+    <LocationInfo EventLocation="_location" @ref="_locationInfoRef"></LocationInfo>
 
+    <TicketingInfo Event="_eventModel" @ref="_ticketingInfoRef"></TicketingInfo>
 
-    <div class="d-grid">
-        <AuthorizeView Context="authContext" Policy="EmailVerifiedOnly">
-            <Authorized>
-                <button type="submit" class="btn btn-success btn-lg">
+    <Description Event="_eventModel" @ref="_descriptionRef"></Description>
+
+    <Permissions Event="_eventModel"></Permissions>
+
+    <MediaSection Media="_media"></MediaSection>
+
+    <AuthorizeView Context="authContext" Policy="EmailVerifiedOnly">
+        <Authorized>
+            <div class="mt-8 flex justify-end space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+
+                <button type="submit" class="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-md text-sm font-medium">
                     @(string.IsNullOrWhiteSpace(_eventModel.Id) ? "Create Event" : "Update Event")
                 </button>
-            </Authorized>
-            <NotAuthorized>
-                <button type="button" class="btn btn-secondary btn-lg" disabled>Create Event</button>
-                <a href="/account/verify" class="btn btn-outline-danger mt-2">
-                    Please verify your account to promote events
-                </a>
-            </NotAuthorized>
-        </AuthorizeView>
-    </div>
+            </div>
+        </Authorized>
+
+        <NotAuthorized>
+            <button type="submit" class="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-md text-sm font-medium disabled">
+                @(string.IsNullOrWhiteSpace(_eventModel.Id) ? "Create Event" : "Update Event")
+            </button>
+            <a href="/account/verify" class="btn btn-outline-danger mt-2">
+                Please verify your account to promote events
+            </a>
+        </NotAuthorized>
+    </AuthorizeView>
+
 </EditForm>
 
 @code {
-    [Parameter]
-    public EventCallback<Alert?> OnAlertChanged { get; set; }
-
     private Event _eventModel = new Event();
-    private EventBasicInfo _eventBasicInfo;
+    private EventLocationModel _location = new();
+    private MediaModel _media = new();
+
+    private EventDateAndTimeInfo _eventDateTimeInfoRef;
+    private LocationInfo _locationInfoRef;
+    private TicketingInfo _ticketingInfoRef;
+    private Description _descriptionRef;
+
     private string _errorMessage = string.Empty;
+
+    private async Task OnCreateEvent()
+    {
+        try
+        {
+            string eventId = "";
+
+            _eventDateTimeInfoRef.UseUpdatedValues();
+            _locationInfoRef.UseUpdatedValues();
+            _ticketingInfoRef.UseUpdatedValues();     
+
+            if (string.IsNullOrWhiteSpace(_eventModel.Id))
+            {
+                _eventModel.Location = _location;
+                _eventModel.Media = _media;
+                _eventModel.DescriptionHtml = await _descriptionRef.GetDescriptionHtml();
+                eventId = await _eventService.CreatEventAsync(_eventModel);
+            }
+            else
+            {
+                // eventId = await _eventService.UpdateEventAsync(_eventModel);
+            }
+
+
+            if (!string.IsNullOrWhiteSpace(eventId))
+            {
+                // await OnAlertChanged.InvokeAsync(new Alert("Event Successful", "You have Created Event successfully.", AlertType.Success));
+                // Event newEvent = new Event();
+                // _eventModel = newEvent;
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in CreateEvent");
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client logic error in CreateEvent");
+            _errorMessage = "Create event failed: An unexpected error occurred.";
+        }
+
+        await JS.InvokeVoidAsync("scrollToTop");
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -65,45 +130,6 @@
         catch (Exception ex)
         {
             _logger.LogError(ex, "Client logic error in GetEvent");
-        }  
-    }
-
-    private async Task OnCreateEvent()
-    {
-        try
-        {
-            string eventId = "";
-
-            _eventBasicInfo.UseUpdatedValues();
-
-            if (string.IsNullOrWhiteSpace(_eventModel.Id))
-            {
-                eventId = await _eventService.CreatEventAsync(_eventModel);
-            }
-            else
-            {
-                eventId = await _eventService.UpdateEventAsync(_eventModel);
-            }
-
-
-            if (!string.IsNullOrWhiteSpace(eventId))
-            {
-                await OnAlertChanged.InvokeAsync(new Alert("Event Successful", "You have Created Event successfully.", AlertType.Success));
-                Event newEvent = new Event();
-                _eventModel = newEvent;
-            }
         }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogError(ex, "API error in CreateEvent");
-            _errorMessage = ex.Message;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Client logic error in CreateEvent");
-            _errorMessage = "Create event failed: An unexpected error occurred.";
-        }
-
-        await JS.InvokeVoidAsync("scrollToTop");
     }
 }

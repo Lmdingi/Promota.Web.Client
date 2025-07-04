@@ -1,0 +1,85 @@
+﻿<div class=" mx-auto bg-white p-8 rounded-lg shadow-sm border-1 mb-3">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Ticket Information</h1>
+
+    <div class="flex items-center gap-2 mb-4">
+        <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="freeToggle" class="sr-only peer" @bind="_isFree">
+        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-pink-500 transition-all duration-200"></div>
+        <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 transform peer-checked:translate-x-full"></div>
+        </label>
+        <label for="remoteToggle" class="text-sm font-medium text-gray-700">
+                This is a free event
+        </label>
+    </div>
+
+    @if (!_isFree)
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Currency</label>
+                <select class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" @bind="Event.Currency">
+                    @foreach (var currency in _currencyRegions)
+                    {
+                        <option value="@currency.ISOCurrencySymbol">
+                            @currency.ISOCurrencySymbol - @currency.CurrencyEnglishName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Ticket Price</label>
+                <InputNumber @bind-Value="Event.Price" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Enter ticket price..." />
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Ticket Link (optional)</label>
+            <InputText @bind-Value="Event.TicketLink" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Enter ticket purchase link..." />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Event? Event { get; set; }
+    
+    private bool _isFree = true;
+    private List<RegionInfo> _currencyRegions = new();
+
+    protected override void OnInitialized()
+    {
+        _currencyRegions = CultureInfo
+            .GetCultures(CultureTypes.SpecificCultures)
+            .Select(c => new RegionInfo(c.Name))
+            .DistinctBy(r => r.ISOCurrencySymbol)
+            .OrderBy(r => r.ISOCurrencySymbol)
+            .ToList();
+    }
+
+    public void UseUpdatedValues()
+    {
+        if (_isFree)
+        {
+            Event.Currency = null;
+            Event.Price = 0;
+            Event.TicketLink = null;
+        }
+        else if (!_isFree && (Event.Currency == "¤¤" || Event.Currency == null))
+        {
+             throw new InvalidOperationException("Select a correct currency for your ticket price.");
+        }
+
+        if (Event.Price < 0)
+        {
+             throw new InvalidOperationException("Select a correct amount your ticket price.");
+        }
+
+        if (Event.Price == 0)
+        {
+            Event.Currency = null;
+            Event.Price = 0;
+            Event.TicketLink = null;
+        }
+    }
+}

@@ -48,7 +48,7 @@
                         @Event.StartDate.ToString("dddd, dd MMMM yyyy hh:mm tt") @_timeZone •
 
                         @* location *@
-                        @if (Event.IsRomote)
+@*                         @if (Event.IsRomote)
                         {
                             <i class="fas fa-globe" title="Online"></i>
                             <a href="@Event.RemoteLink" style="text-decoration:none">Remote </a>
@@ -57,7 +57,7 @@
                         @if (!string.IsNullOrWhiteSpace(Event.PhysicalLocation))
                         {
                             <i class="bi bi-geo-alt-fill"></i> @(" " + Event.PhysicalLocation)
-                        }                        
+                        }      *@                   
                     </small>
 
                     @* fee *@

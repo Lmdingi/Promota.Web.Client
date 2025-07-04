@@ -11,11 +11,14 @@ namespace Services.Models
     public class Event
     {
         public string? Id { get; set; }
-        // Event Title
+        // Basic information
         [Required]
         public string Title { get; set; } =  string.Empty;
+        [Required]
+        public string Category { get; set; } = string.Empty;
+        public List<string> Keywords { get; set; } = [];
 
-        // Event Date and Time
+        //Event Date and Time
         public string TimeZone { get; set; } = TimeZoneInfo.Local.Id;
 
         [Required]
@@ -23,22 +26,32 @@ namespace Services.Models
         [FutureDate(ErrorMessage = "Start Date cannot be in the past.")]
         public DateTime StartDate { get; set; } = DateTime.Now;
 
-        public DateTime? EndDate { get; set; }
+
+        [Display(Name = "End Date")]
+        [FutureDate(ErrorMessage = "End Date cannot be in the past.")]
+        public DateTime? EndDate { get; set; } = DateTime.Now;
 
         // Location Mode Selection
-        public bool IsRomote { get; set; }
-
-        public string? RemoteLink { get; set; }
-
-        public string? PhysicalLocation { get; set; }
+        public EventLocationModel? Location { get; set; }
 
         // Pricing Section
         public string? Currency { get; set; }
         public decimal Price { get; set; }
         public string? TicketLink { get; set; }
 
+        // Permissions
+        public bool AllowComments { get; set; } = true;
+        public bool AllowChats { get; set; } = true;
+
+        // Description
+        [Display(Name = "Description")]
+        public string? DescriptionHtml { get; set; }
+
+        // Media
+        public MediaModel? Media { get; set; }
+
         // Creator Infor Section
-        public UserModel Creator { get; set; }
+        public UserModel? Creator { get; set; }
     }
 
     public class FutureDateAttribute : ValidationAttribute

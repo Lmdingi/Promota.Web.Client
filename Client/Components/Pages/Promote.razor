@@ -3,50 +3,57 @@
 @rendermode InteractiveServer
 @inject NavigationManager _navigationManager
 
-<div class="card shadow-lg mb-4 border-0 rounded-4" style="height: 650px; overflow: hidden;">
-   
-    <div class="card-footer bg-white border-top-0 px-4 pt-3 h-100 d-flex flex-column">
-        
-        <!-- Tabs -->
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a class="nav-link @((activeTab == "promote") ? "active" : "")" @onclick="@(() => SetActiveTab("promote"))">Promote</a>
-            </li>
+<div class="bg-white rounded-2xl shadow-lg h-[630px] flex flex-col overflow-hidden">
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 px-4 pt-4">
+        <nav class="flex space-x-4">
+            <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+                       @((activeTab == "promote") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
+                    @onclick="@(() => SetActiveTab("promote"))">
+                Promote
+            </button>
 
-            <li class="nav-item">
-                <a class="nav-link @((activeTab == "events") ? "active" : "")" @onclick="@(() => SetActiveTab("events"))">Events</a>
-            </li>
+            <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+                       @((activeTab == "events") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
+                    @onclick="@(() => SetActiveTab("events"))">
+                Events
+            </button>
 
-            <li class="nav-item">
-                <a class="nav-link @((activeTab == "analytics") ? "active" : "")" @onclick="@(() => SetActiveTab("analytics"))">Analytics</a>
-            </li>
+            <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+                       @((activeTab == "analytics") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
+                    @onclick="@(() => SetActiveTab("analytics"))">
+                Analytics
+            </button>
 
-            <li class="nav-item">
-                <a class="nav-link @((activeTab == "going") ? "active" : "")" @onclick="@(() => SetActiveTab("going"))">Going</a>
-            </li>
-        </ul>
+            <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+                       @((activeTab == "going") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
+                    @onclick="@(() => SetActiveTab("going"))">
+                Going
+            </button>
+        </nav>
+    </div>
 
-        <!-- Tab Content -->
-        <div class="p-3 border rounded-bottom rounded-end flex-grow-1 overflow-auto">
-            @if (activeTab == "promote")
-            {
-                <CreateEventForm OnAlertChanged="HandleAlertChanged"></CreateEventForm>
-            }
-            else if (activeTab == "events")
-            {
-                <MyEvents OnEdit="SetActiveTab"></MyEvents>
-            }
-            else if (activeTab == "analytics")
-            {
-                <p><strong>Analytics:</strong> Track attendance, views, engagement, and ratings per event. (future).</p>
-            }
-            else if (activeTab == "going")
-            {
-                <p><strong>Going:</strong> List of events the user marked to attend. (future).</p>
-            }
-        </div>
+    <!-- Tab Content -->
+    <div class="p-4 flex-grow overflow-auto">
+        @if (activeTab == "promote")
+        {
+            <CreateEventForm/>
+        }
+        else if (activeTab == "events")
+        {
+            <MyEvents OnEdit="SetActiveTab" />
+        }
+        else if (activeTab == "analytics")
+        {
+            <p class="text-gray-700 font-medium">Analytics: Track attendance, views, engagement, and ratings per event. (future).</p>
+        }
+        else if (activeTab == "going")
+        {
+            <p class="text-gray-700 font-medium">Going: List of events the user marked to attend. (future).</p>
+        }
     </div>
 </div>
+
 
 @if (Alert != null)
 {
