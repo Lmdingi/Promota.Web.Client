@@ -8,7 +8,7 @@ namespace Services.Models
 {
     public class MediaModel
     {
-        public string? ThumbnailImageBase64 { get; set; }
-        public string? CoverImageBase64 { get; set; }
+        public string? BannerUrl { get; set; }
+        public string? ThumbnailUrl { get; set; }
     }
 }

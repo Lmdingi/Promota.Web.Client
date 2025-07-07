@@ -10,8 +10,10 @@
 @inject IUserService _userService
 @inject GlobalEventCallBacks _globalEventCallBacks
 
-
-
+@foreach (var eventModel in _events)
+{
+    <EventCard Event="eventModel"></EventCard>
+}
 
 
 
@@ -25,6 +27,7 @@
                         <div class="icon-placeholder flex-shrink-0 mr-6 mb-4 sm:mb-0">
                             <img alt="Event placeholder image" class="opacity-0 w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv1Z4V0wsh_wHXVeyiWJZAvQ9tIzVs37z7pSoMuuwDXZnwXvMLWL_23IhL3k1HyxWao7xZ7qWIzEjrqOWC5f0d7_w7Wk1nbpke3DAAICusyuhTfsipT6iwhoOJ8uDpwkAxlZiSRkcX9AGw_AaUH2BywlkCNn8Ebqm7h3Y2UVbzosjixq25nIdk5YH9S4q3gJ8ypNR19pt8KtHrpWaZmM9Xopex25rvlez695QBWr5sU2Wn5UlMhBrfud4s7U11uoX2BkGqfrEUSj0" />
                         </div>
+
                         <div class="flex-grow">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
@@ -42,14 +45,18 @@
                                     </span>
                                 </div>
                             </div>
+
                             <p class="text-sm text-gray-500 mb-1">31 Jan 2025</p>
+
                             <div class="flex items-center text-sm text-gray-600 mb-1">
                                 <span class="material-icons text-gray-400 mr-1 text-base">location_on</span>
                                 Cape Town
                             </div>
+
                             <p class="text-lg font-semibold text-pink-500">R 90.00</p>
                         </div>
                     </div>
+
                     <div class="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-2">
                         <button class="col-span-2 sm:col-span-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-3 rounded-md flex items-center justify-center text-sm">
                             <span class="material-icons mr-1 text-base">person_add</span> Attend <span class="ml-1 bg-pink-700 text-white text-xs px-1.5 py-0.5 rounded-full">256</span>
@@ -60,6 +67,7 @@
                         <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-3 rounded-md text-sm">Share</button>
                     </div>
                 </div>
+
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center">
                         <div class="icon-placeholder flex-shrink-0 mr-6 mb-4 sm:mb-0">
@@ -144,47 +152,10 @@
 
 
 @code {
-    public UserModel? _userModel;
+    public bool IsLoading { get; set; }
 
-    protected async override Task OnInitializedAsync()
-    {
-       
-
-        // _globalEventCallBacks.OnGetCurrentUserStateForNav += HandleGetCurrentUserState;
-        // HandleGetCurrentUserState();
-    }
-
-    // private void HandleGetCurrentUserState()
-    // {
-    //     _ = InvokeAsync(async () =>
-    //     {
-    //         _userModel = await _AuthStateProvider.GetCurrentUserState();
-    //         StateHasChanged();
-    //     });
-
-    //     StateHasChanged();
-    // }
-}
-
-
-
-    
-
-
-@* @foreach (var eventModel in _events)
-{
-    <EventCard Event="eventModel" OnDelete="HandleDelete"></EventCard>
-}
-
-@if (Alert != null)
-{
-    <AlertModal Alert="@Alert" OnAlertChanged="HandleAlertChanged"></AlertModal>
-}
-
-@code {
-    public Alert? Alert { get; set; }
-    private UserModel? _currentUser = null;
     private List<Event> _events = new List<Event>();
+    public UserModel? _userModel;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -199,16 +170,58 @@
         catch (InvalidOperationException ex)
         {
             _logger.LogError(ex, "API error in GetEvents");
-            await HandleAlertChanged(new Alert("Event failed", ex.Message, AlertType.Error));
+            // await HandleAlertChanged(new Alert("Event failed", ex.Message, AlertType.Error));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Client logic error in GetEvents");
-            await HandleAlertChanged(new Alert("Event failed", "Get events failed: An unexpected error occurred.", AlertType.Error));
+            // await HandleAlertChanged(new Alert("Event failed", "Get events failed: An unexpected error occurred.", AlertType.Error));
         }
 
         // await JS.InvokeVoidAsync("scrollToTop");
+
     }
+
+
+    #region old
+    // protected async override Task OnInitializedAsync()
+    // {
+
+
+    //     // _globalEventCallBacks.OnGetCurrentUserStateForNav += HandleGetCurrentUserState;
+    //     // HandleGetCurrentUserState();
+    // }
+
+    // private void HandleGetCurrentUserState()
+    // {
+    //     _ = InvokeAsync(async () =>
+    //     {
+    //         _userModel = await _AuthStateProvider.GetCurrentUserState();
+    //         StateHasChanged();
+    //     });
+
+    //     StateHasChanged();
+    // }
+    #endregion
+}
+
+
+
+    
+
+
+@* 
+
+@if (Alert != null)
+{
+    <AlertModal Alert="@Alert" OnAlertChanged="HandleAlertChanged"></AlertModal>
+}
+
+@code {
+
+
+
+
 
     private async Task HandleAlertChanged(Alert? alert)
     {
