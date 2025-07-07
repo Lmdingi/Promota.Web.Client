@@ -1,231 +1,85 @@
-﻿<div class="card mb-4">
-    <div class="card-header fw-bold"><i class="bi bi-pin-angle"></i> Basic Information</div>
+﻿<div class=" mx-auto bg-white p-8 rounded-lg shadow-sm border-1 mb-3">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Basic Information</h1>
+    
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="event-title">
+            Event Title <span class="text-red-500">*</span>
+        </label>
 
-    <div class="card-body">
-        <!-- Event Title -->
-        <div class="mb-3">
-            <label class="form-label">Event Title *</label>
-            <InputText class="form-control shadow-sm" @bind-Value="Event.Title" />
-            <ValidationMessage For="@(() => Event.Title)" />
+        <InputText id="event-title" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm" @bind-Value="Event.Title" />
+        <ValidationMessage For="@(() => Event.Title)" />
+        <p class="mt-1 text-xs text-gray-500">Choose a clear and concise title.</p>
+    </div>
+
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="event-category">
+            Category <span class="text-red-500">*</span>
+        </label>
+
+        <InputSelect id="event-category" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm" @bind-Value="Event.Category">
+                <option disabled selected value="">Select a category</option>
+                @foreach (var category in EventCategories.List)
+                {
+                    <option value="@category">@category</option>
+                }
+        </InputSelect>
+        <ValidationMessage For="@(() => Event.Category)" />
+        <p class="mt-1 text-xs text-gray-500">Select the category that best fits your event.</p>
+    </div>
+
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="event-keywords">Keywords</label>
+
+        <div class="relative">
+            <input id="event-keywords-input" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-10" @bind="NewKeyword" @onkeypress="HandleKeyPress" placeholder="Add keywords (e.g., concert, festival)" />
+            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-pink-500 hover:text-pink-700" @onclick="AddKeyword">
+                <span class="material-icons">add_circle</span>
+            </button>
         </div>
-        
-        <!-- Event Date and Time -->
-        <div class="mb-3">  
-            <!-- Timezone selector -->
-               <div class="mb-3"> 
-                <label class="form-label">Select Time Zone</label>
-                <select class="form-select shadow-sm" @bind="Event.TimeZone">
-                
-                    @foreach (var tz in _timeZones)
-                    {                   
-                        <option value="@tz.Id">@tz.DisplayName</option>
-                    }                
-                </select>
-            </div>
 
-            <!-- Start Date & Time -->
-            <div class="row align-items-center mb-3">
-                <div class="col-6">
-                    <label class="form-label">Start Date</label>
-                    <InputDate @bind-Value="Event.StartDate" class="form-control shadow-sm" />
-                    <ValidationMessage For="@(() => Event.StartDate)" />
-                </div>
-
-                <div class="col-6">
-                    <label class="form-label">Start Time</label>
-                    <InputText @bind-Value="_startTime" type="time" class="form-control shadow-sm" />
-                </div>
-            </div>
-
-            <!-- Checkbox toggle for End Date & Time -->
-            <div class="form-check mb-3">
-                <InputCheckbox @bind-Value="_hasEndDate" class="form-check-input" id="endDateToggle" />
-                <label class="form-check-label" for="endDateToggle">Add End Date & Time</label>
-            </div>
-
-            @if (_hasEndDate)
+        <div class="mt-2">
+        @foreach (var keyword in Event.Keywords)
             {
-                <!-- End Date & Time -->
-                <div class="row align-items-center mb-4">
-                    <div class="col-6">
-                        <label class="form-label">End Date</label>
-                        <InputDate @bind-Value="_endDate" class="form-control shadow-sm" />
-                    </div>
-
-                    <div class="col-6">
-                        <label class="form-label">End Time</label>
-                        <InputText @bind-Value="_endTime" type="time" class="form-control shadow-sm" />
-                    </div>
-                </div>
+            <span class="inline-flex items-center bg-pink-100 text-pink-700 text-sm font-medium mr-2 mb-2 px-2.5 py-1 rounded-full">
+                    @keyword
+                <span class="material-icons ml-1.5 text-pink-500 hover:text-pink-700 cursor-pointer" @onclick="() => RemoveKeyword(keyword)">cancel</span>
+                </span>
             }
         </div>
 
-        <!-- Location Mode Selection -->
-        <div class="form-check mb-3">
-            <InputCheckbox @bind-Value="Event.IsRomote" class="form-check-input" id="remoteToggle" @onclick="OnIsRemoteChanged" />
-            <label class="form-check-label" for="remoteToggle">This is a remote event</label>
-        </div>
-
-        @if (Event.IsRomote)
-        {
-            <div class="mb-4">
-                <label class="form-label">Event Link (optional)</label>
-                <InputText @bind-Value="Event.RemoteLink" class="form-control shadow-sm" placeholder="Enter online event link..." />
-            </div>
-        }
-
-        <div class="form-check mb-3">
-            <InputCheckbox @bind-Value="_hasPhysicalLocation" class="form-check-input" id="inPersonToggle" disabled="@(Event.IsRomote == false)" />
-            <label class="form-check-label" for="inPersonToggle">This is a physical/in-person event</label>
-        </div>
-
-        @if (_hasPhysicalLocation)
-        {
-            <div class="mb-3">
-                <label class="form-label">Location</label>
-                <InputText @bind-Value="Event.PhysicalLocation" class="form-control shadow-sm" placeholder="Enter physical location..." />
-            </div>
-        }
-
-        <!-- Pricing Section -->
-        <div class="form-check mb-2">
-            <InputCheckbox @bind-Value="_isFree" class="form-check-input" id="freeToggle" />
-            <label class="form-check-label" for="freeToggle">This is a free event</label>
-        </div>
-
-        @if (!_isFree)
-        {
-            <div class="mb-3 d-flex gap-3 align-items-center">
-                <div class="flex-grow-1" style="max-width: 120px;">
-                    <label class="form-label">Currency</label>
-
-                    <select class="form-select shadow-sm" @bind="Event.Currency">
-                        @foreach (var currency in _currencyRegions)
-                        {
-                            <option value="@currency.ISOCurrencySymbol">
-                                @currency.ISOCurrencySymbol - @currency.CurrencyEnglishName
-                            </option>
-                        }
-                    </select>
-                </div>
-
-                <div class="flex-grow-1">
-                    <label class="form-label">Ticket Price</label>
-                    <InputNumber @bind-Value="Event.Price" class="form-control shadow-sm" placeholder="Enter ticket price..." />
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label">Ticket Link (optional)</label>
-                <InputText @bind-Value="Event.TicketLink" class="form-control shadow-sm" placeholder="Enter ticket purchase link..." />
-            </div>
-        }
+        <p class="mt-1 text-xs text-gray-500">Add keywords to help people find your event. Press Enter or click the '+' button to add.</p>
     </div>
 </div>
 
+
+
 @code {
-    [CascadingParameter(Name = "_eventModel")]
-    public Event Event { get; set; }
-    private List<TimeZoneInfo> _timeZones = TimeZoneInfo.GetSystemTimeZones().ToList();
-    private string _startTime = "08:00";
-    private string _endTime = "17:00";
-    private bool _hasEndDate = false;
-    private DateTime _endDate = DateTime.Now;
-    private bool _hasPhysicalLocation = true;
-    private bool _isFree = true;
-    private List<RegionInfo> _currencyRegions = new();
-    private List<string> _currencies = new();
+    [Parameter]
+    public Event? Event { get; set; }
 
-    protected override void OnInitialized()
+    private string NewKeyword;
+
+    private void AddKeyword()
     {
-        _currencyRegions = CultureInfo
-            .GetCultures(CultureTypes.SpecificCultures)
-            .Select(c => new RegionInfo(c.Name))
-            .DistinctBy(r => r.ISOCurrencySymbol)
-            .OrderBy(r => r.ISOCurrencySymbol)
-            .ToList();
-
-        if (!string.IsNullOrWhiteSpace(Event.Id))
+        if (!string.IsNullOrWhiteSpace(NewKeyword) && !Event.Keywords.Contains(NewKeyword) && Event.Keywords.Count < 5)
         {
-            _isFree = Event.Price == 0;
-            _hasPhysicalLocation = !string.IsNullOrWhiteSpace(Event.PhysicalLocation);
+            Event.Keywords.Add(NewKeyword.Trim());
+            NewKeyword = string.Empty;
         }
     }
 
-    public void UseUpdatedValues()
+    private void RemoveKeyword(string keyword)
     {
-        Event.StartDate = CombineDateAndTime(Event.StartDate, _startTime);
-        if (_hasEndDate)
-        {
-            Event.EndDate = CombineDateAndTime(_endDate, _endTime);
-        }
-        else
-        {
-            Event.EndDate = null;
-        }
-
-        if (!Event.IsRomote || string.IsNullOrWhiteSpace(Event.RemoteLink))
-        {
-            Event.RemoteLink = null;
-        }
-
-        if (!Event.IsRomote && string.IsNullOrWhiteSpace(Event.PhysicalLocation))
-        {
-            throw new InvalidOperationException("Location is required for non-remote events.");
-        }
-        
-        if (_hasPhysicalLocation && string.IsNullOrWhiteSpace(Event.PhysicalLocation))
-        {
-            throw new InvalidOperationException("Location is required for in person events.");
-        }
-
-        if (_isFree)
-        {
-            Event.Currency = null;
-            Event.Price = 0;
-            Event.TicketLink = null;
-        }
-        else if (!_isFree && (Event.Currency == "¤¤" || Event.Currency == null))
-        {
-             throw new InvalidOperationException("Select a correct currency format for your ticket price.");
-        }
-
-        if (Event.Price < 0)
-        {
-             throw new InvalidOperationException("Select a correct amount your ticket price.");
-        }
-
-          if (Event.Price == 0)
-        {
-            Event.Currency = null;
-            Event.Price = 0;
-            Event.TicketLink = null;
-        }
+        Event.Keywords.Remove(keyword);
     }
 
-    private void TogglePhysicalLocation()
-    { 
-        _hasPhysicalLocation = !Event.IsRomote;
-    }
-
-    private DateTime CombineDateAndTime(DateTime date, string time)
+    private void HandleKeyPress(KeyboardEventArgs e)
     {
-        if (TimeSpan.TryParse(time, out var timeSpan))
+        if (e.Key == "Enter")
         {
-            return date.Date + timeSpan;
+            // e.PreventDefault();
+            AddKeyword();
         }
-        else
-        {
-            throw new FormatException("Invalid time format. Use HH:mm or HH:mm:ss.");
-        }
-    }
-
-    private void OnIsRemoteChanged()
-    {
-        if (Event.IsRomote && !_hasPhysicalLocation)
-        {
-            _hasPhysicalLocation = true;           
-        }
-        StateHasChanged();
     }
 }
+

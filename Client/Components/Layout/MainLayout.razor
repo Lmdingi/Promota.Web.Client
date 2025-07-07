@@ -1,20 +1,26 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<!-- Navigation Bar -->
+<NavigationBar></NavigationBar>
 
-    <main>
-        <div class="top-row px-4">
-            @* <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a> *@
-            <Nav></Nav>
+<!-- Full Screen -->
+<div class="min-h-screen flex flex-col pt-[70px]">
+    <!-- Main Content Area Below Navbar -->
+    <div class="flex-grow grid grid-cols-1 md:grid-cols-4  overflow-hidden w-full" style="height: calc(100vh - 70px);">
+         <!-- Side Bar -->
+        <div class="px-3 md:col-span-1 py-8 w-full overflow-y-auto h-full">
+             <aside class="bg-white p-6 rounded-lg shadow-lg  ">
+                <SideBar></SideBar>
+             </aside>
         </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+        <!-- Main Content -->
+        <div class="px-3 md:col-span-3 py-8  w-full overflow-y-auto h-full">
+            <main class="md:col-span-3 space-y-6">
+                    @Body
+            </main>
+        </div>
+    </div>
 </div>
 
 <div id="blazor-error-ui">
@@ -22,3 +28,5 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+

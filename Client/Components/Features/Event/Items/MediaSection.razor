@@ -1,0 +1,105 @@
+﻿<div class="mx-auto bg-white p-8 rounded-lg shadow border mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Media</h1>
+
+    <!-- Thumbnail Upload -->
+    <div class="mb-8">
+        <label class="block text-gray-700 font-semibold mb-2">Event Thumbnail</label>
+
+        @if (Media.ThumbnailUrl == null)
+        {
+            <InputFile OnChange="HandleThumbnailSelected" accept="image/*" class="form-control" />
+            <div class="mt-4 w-[150px] h-[150px] rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-100">
+                <span class="text-gray-400 text-sm">No image selected</span>
+            </div>
+        }
+        else
+        {
+            <div class="relative w-[150px] h-[150px]">
+                <img src="@Media.ThumbnailUrl"
+                     alt="Thumbnail"
+                     class="w-full h-full object-cover rounded-full border shadow" />
+
+                <!-- Floating Remove Button -->
+                <button type="button"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center shadow hover:bg-red-600"
+                        @onclick="RemoveThumbnail"
+                        title="Remove thumbnail">
+                    ✕
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- Banner Upload -->
+    <div class="mt-6">
+        <label class="block text-gray-700 font-semibold mb-2">Event Cover Image (Banner)</label>
+
+        @if (Media.BannerUrl == null)
+        {
+            <InputFile OnChange="HandleBannerSelected" accept="image/*" class="form-control" />
+            <div class="mt-4 w-full max-w-2xl aspect-[16/9] rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-100">
+                <span class="text-gray-400 text-sm">No banner selected</span>
+            </div>
+        }
+        else
+        {
+            <div class="relative w-full max-w-2xl aspect-[16/9] rounded-lg overflow-hidden shadow border">
+                <img src="@Media.BannerUrl"
+                     alt="Banner Image"
+                     class="w-full h-full object-cover" />
+
+                <!-- Remove button -->
+                <button type="button"
+                        class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow hover:bg-red-600"
+                        @onclick="RemoveBanner"
+                        title="Remove banner">
+                    ✕
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public MediaModel? Media { get; set; }
+
+    private IBrowserFile? _selectedFile;
+
+    private async Task HandleBannerSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null && file.ContentType.StartsWith("image/"))
+        {
+            var resizedImageFile = await file.RequestImageFileAsync(file.ContentType, 1200, 400); // logical resize for banner
+            var buffer = new byte[resizedImageFile.Size];
+            await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+            Media.BannerUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+        }
+    }
+
+    private async Task HandleThumbnailSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null && file.ContentType.StartsWith("image/"))
+        {
+            var resizedImageFile = await file.RequestImageFileAsync(file.ContentType, 150, 150);
+            var buffer = new byte[resizedImageFile.Size];
+            await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+            Media.ThumbnailUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+        }
+    }
+
+    private void RemoveBanner()
+    {
+        Media.BannerUrl = null;
+    }
+
+    private void RemoveThumbnail()
+    {
+        Media.ThumbnailUrl = null;
+    }
+}

@@ -1,29 +1,26 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @inject IAuthService _authService
-@inject NavigationManager _nav
-@inject JWTAuthenticationStateProvider _AuthStateProvider
+@inject NavigationManager _navigationManager
 @inject IAccessTokenService _AccessTokenService
 @inject IAuthService _AuthService
 @inject IResourceService _ResourceService
 @inject IEventService _eventService
 @inject ILogger<Home> _logger
 @inject IUserService _userService
+@inject GlobalEventCallBacks _globalEventCallBacks
 
 @foreach (var eventModel in _events)
 {
-    <EventCard Event="eventModel" OnDelete="HandleDelete"></EventCard>
+    <EventCard Event="eventModel"></EventCard>
 }
 
-@if (Alert != null)
-{
-    <AlertModal Alert="@Alert" OnAlertChanged="HandleAlertChanged"></AlertModal>
-}
 
 @code {
-    public Alert? Alert { get; set; }
-    private UserModel? _currentUser = null;
+    public bool IsLoading { get; set; }
+
     private List<Event> _events = new List<Event>();
+    public UserModel? _userModel;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -38,46 +35,37 @@
         catch (InvalidOperationException ex)
         {
             _logger.LogError(ex, "API error in GetEvents");
-            await HandleAlertChanged(new Alert("Event failed", ex.Message, AlertType.Error));
+            // await HandleAlertChanged(new Alert("Event failed", ex.Message, AlertType.Error));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Client logic error in GetEvents");
-            await HandleAlertChanged(new Alert("Event failed", "Get events failed: An unexpected error occurred.", AlertType.Error));
+            // await HandleAlertChanged(new Alert("Event failed", "Get events failed: An unexpected error occurred.", AlertType.Error));
         }
 
         // await JS.InvokeVoidAsync("scrollToTop");
+
     }
 
-    private async Task HandleAlertChanged(Alert? alert)
-    {
-        Alert = alert;
-        StateHasChanged();
 
-        if (alert != null && alert.Type == AlertType.Success)
-        {
-            await Task.Delay(3000);
-            Alert = null;
-            StateHasChanged();
-        }
-    }
+    #region old
+    // protected async override Task OnInitializedAsync()
+    // {
 
-    private async Task HandleDelete(string eventId)
-    {
-        try
-        {
-            await _eventService.DeleteEventByIdAsync(eventId);
-            var eventModel = _events.FirstOrDefault(x => x.Id == eventId);
-            _events.Remove(eventModel);
-            StateHasChanged();
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogError(ex, "API error in GetEvents");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Client logic error in GetEvents");
-        }
-    }
+
+    //     // _globalEventCallBacks.OnGetCurrentUserStateForNav += HandleGetCurrentUserState;
+    //     // HandleGetCurrentUserState();
+    // }
+
+    // private void HandleGetCurrentUserState()
+    // {
+    //     _ = InvokeAsync(async () =>
+    //     {
+    //         _userModel = await _AuthStateProvider.GetCurrentUserState();
+    //         StateHasChanged();
+    //     });
+
+    //     StateHasChanged();
+    // }
+    #endregion
 }

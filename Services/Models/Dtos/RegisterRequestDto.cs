@@ -10,9 +10,19 @@ namespace Services.Models.Dtos
     public class RegisterRequestDto
     {
         [Required]
+        [RegularExpression(@"^\S+$", ErrorMessage = "First Name cannot contain spaces.")]
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [RegularExpression(@"^\S+$", ErrorMessage = "Last Name cannot contain spaces.")]
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; }
+
+        [Required]
         [EmailAddress]
         [RegularExpression(@"^\S(.*\S)?$", ErrorMessage = "Email must not have leading or trailing spaces.")]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -27,5 +37,16 @@ namespace Services.Models.Dtos
         [RegularExpression(@"^\S+$", ErrorMessage = "Username cannot contain spaces.")]
         [Display(Name = "Username")]
         public string UserName { get; set; } = string.Empty;
+
+        [MustBeTrue(ErrorMessage = "You must accept the terms.")]
+        public bool AcceptTerms { get; set; }
+    }
+
+    public class MustBeTrueAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            return value is bool boolValue && boolValue;
+        }
     }
 }

@@ -51,7 +51,7 @@ namespace Client.Security
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
             _authService.LogoutAsync();
-            Response.Redirect("/");
+            Response.Redirect("/account");
             return Task.CompletedTask;
         }
 

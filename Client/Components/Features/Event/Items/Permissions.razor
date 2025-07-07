@@ -1,0 +1,32 @@
+﻿ <div class=" mx-auto bg-white p-8 rounded-lg shadow-sm border-1 mb-3">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Permissions</h1>
+
+    <div class="flex items-center gap-2 mb-4">
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="freeToggle" class="sr-only peer" @bind="Event.AllowComments">
+            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-pink-500 transition-all duration-200"></div>
+            <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 transform peer-checked:translate-x-full"></div>
+        </label>
+        <label for="remoteToggle" class="text-sm font-medium text-gray-700">
+            Allow Comments
+        </label>
+    </div>
+
+    <div class="flex items-center gap-2 mb-4">
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="freeToggle" class="sr-only peer" @bind="Event.AllowChats">
+            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-pink-500 transition-all duration-200"></div>
+            <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 transform peer-checked:translate-x-full"></div>
+        </label>
+        <label for="remoteToggle" class="text-sm font-medium text-gray-700">
+            Allow Chats
+        </label>
+    </div>
+
+</div>
+  
+
+@code {
+    [Parameter]
+    public Event? Event { get; set; }
+}

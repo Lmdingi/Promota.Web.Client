@@ -1,0 +1,109 @@
+﻿@inject GlobalEventCallBacks _globalEventCallBacks
+@inject IAuthService _authService
+@inject NavigationManager _navigationManager
+@inject JWTAuthenticationStateProvider _authProvider
+@inject ILogger<Login> _logger
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+<div class="tab-content active">
+    <h2 class="text-center text-3xl font-extrabold text-gray-900 mb-2">Sign in to your account</h2>
+    <p class="text-center text-sm text-gray-600 mb-6">Welcome back! Please enter your details.</p>
+
+    <EditForm Model="@_loginRequestDto" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700" for="firstName">Email/Username</label>
+            <div class="mt-1">
+                <InputText id="firstName" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                           @bind-Value="_loginRequestDto.Identifier" placeholder="enter you username or email" />
+                <ValidationMessage For="@(() => _loginRequestDto.Identifier)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700" for="signUpPassword">Password</label>
+            <div class="mt-1 relative">
+                <InputText id="signUpPassword"
+                           type="@(_showPassword ? "text" : "password")"
+                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-10"
+                           @bind-Value="_loginRequestDto.Password"
+                           placeholder="••••••••" />
+                <button type="button"
+                        class="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm"
+                        @onclick="() => _showPassword = !_showPassword"
+                        tabindex="-1">
+                    @(_showPassword ? "Hide" : "Show")
+                </button>
+                <ValidationMessage For="@(() => _loginRequestDto.Password)" />
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <input class="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded" id="remember-me-signin" type="checkbox" />
+                <label class="ml-2 block text-sm text-gray-900" for="remember-me-signin">Remember me</label>
+            </div>
+            <div class="text-sm">
+                <a class="font-medium text-pink-600 hover:text-pink-500" href="#">Forgot your password?</a>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500" type="submit">
+                Sign In
+            </button>
+        </div>
+        <p class="mt-4 text-center text-sm text-gray-500">
+            Not a member?
+            <button class="font-medium text-pink-600 hover:text-pink-500" @onclick="@((_ => _globalEventCallBacks.RaiseRegisterOrSignInTabSelectionEvent("signUp")))" type="button">
+                Sign up now
+            </button>
+        </p>
+
+    </EditForm>
+</div>
+
+
+
+@code {
+    LoginRequestDto _loginRequestDto = new LoginRequestDto();
+    private string _errorMessage = string.Empty;
+    private bool _showPassword = false;
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            _globalEventCallBacks.RaiseLoadingSpinnerEvent(true);
+            var isLogedIn = await _authService.LoginAsync(_loginRequestDto);
+
+            if (isLogedIn)
+            {
+                _globalEventCallBacks.RaiseGetCurrentUserStateForNavEvent();
+                _navigationManager.NavigateTo("/");
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in Login");
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client error in Login");
+            _errorMessage = "Register failed: An unexpected error occurred.";
+        }
+
+        _globalEventCallBacks.RaiseLoadingSpinnerEvent(false);
+    }
+}

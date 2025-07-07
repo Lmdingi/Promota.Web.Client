@@ -10,7 +10,6 @@ namespace Client.Security
     public class JWTAuthenticationStateProvider : AuthenticationStateProvider
     {
         // props
-        public UserModel CurrentUser { get; set; }
 
         // fields
         private readonly IAccessTokenService _accessTokenService;
@@ -66,19 +65,20 @@ namespace Client.Security
             {
                 var state = await GetAuthenticationStateAsync();
                 var user = state.User;
+                var currentUser = new UserModel();
 
                 if (user.Identity != null && user.Identity.IsAuthenticated)
                 {
-                    CurrentUser = new UserModel
+                    currentUser = new UserModel
                     {
                         Id = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value,
                         IsAuthenticated = user.Identity.IsAuthenticated,
                         UserName = user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value,
-                        ProfilePictureUrl = "https://reddoorescape.com/wp-content/uploads/DP.png"
+                        ProfilePictureUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuDc3WSbUkMWeQ5DqwbsE75otJLohmePjWAxBx2G8TGsi1vGNLwnDP6spJCjjl5DwjR1bkbYunPkuwI-v3eKWIZyPui6V2fiFBTPq0QiZ9dcr-EJh3JGwIDhXm2UrfhXlUmu11k-HzDFWJ0gmgWJh2V7YCPUuI0JEgxaoOIo5AZx7gM2HCKvtW8C9i-j0DgcThIEbEE01BcWzA9d3BvC_94SedAJA5bZ_iPHXZpOCpestSWRJAjYo7wHMp2bKxXld05WH1yP8udZuEM"
                     };
                 }
 
-                return CurrentUser;
+                return currentUser;
             }
             catch (Exception ex)
             {

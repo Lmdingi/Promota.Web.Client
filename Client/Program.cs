@@ -1,5 +1,6 @@
 using Client;
 using Client.Components;
+using Client.GlobalEventCallBacks;
 using Client.Security;
 using Microsoft.AspNetCore.Components.Authorization;
 using Serilog;
@@ -29,7 +30,9 @@ builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IAPIService, APIService>(); 
 builder.Services.AddScoped<IResourceService, ResourceService>();
 builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IUserService, UserService>(); 
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddSingleton<GlobalEventCallBacks>();
 
 builder.Services.AddHttpClient("ApiClient", options =>
 {

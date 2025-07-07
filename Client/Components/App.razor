@@ -15,19 +15,150 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
+    <title>PROMOTA</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+ 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+    <!-- Quill CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .icon-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 9999px;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+            .icon-placeholder::before {
+                content: "";
+                position: absolute;
+                top: 25%;
+                left: 25%;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                border: 2px solid #9e9e9e;
+            }
+
+            .icon-placeholder::after {
+                content: "";
+                position: absolute;
+                bottom: 25%;
+                left: 20%;
+                width: 0;
+                height: 0;
+                border-left: 25px solid transparent;
+                border-right: 25px solid transparent;
+                border-bottom: 30px solid #9e9e9e;
+            }
+
+        .tab-content {
+            display: none;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        .border-check {
+            border: 1px solid red;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #f06292 0%, #ef5350 100%);
+        }
+
+    </style>
+
     <HeadOutlet />
 </head>
 
 <body>
     <Routes />
+
     <script src="_framework/blazor.web.js"></script>
     <script src="/js/cookies.js"></script>
+    <!-- Ensure Quill JS loads before your custom script -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- Your custom JS script -->
+    <script>
+        window.initQuill = () => {
+            if (!window.Quill) {
+                console.error("Quill is not loaded.");
+                return;
+            }
+
+            const editor = document.getElementById('quillEditor');
+            if (!editor) {
+                console.error("quillEditor div not found.");
+                return;
+            }
+
+            if (!window.quill) {
+                window.quill = new Quill('#quillEditor', {
+                    theme: 'snow',
+                    placeholder: 'Type your event description here...',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link'],
+                            ['clean']
+                        ]
+                    }
+                });
+
+        const existingHtml = document.getElementById('descriptionHtml')?.value;
+        if (existingHtml) {
+            window.quill.root.innerHTML = existingHtml;
+        }
+
+                window.quill.on('text-change', function () {
+                    const html = window.quill.root.innerHTML;
+                    const textarea = document.getElementById('descriptionHtml');
+                    if (textarea) {
+                        textarea.value = html;
+                        textarea.dispatchEvent(new Event('input'));
+                    } else {
+                        console.warn("Hidden textarea not found.");
+                    }
+                });
+            }
+        };
+
+        window.getQuillContent = () => {
+            if (window.quill) {
+                return window.quill.root.innerHTML;
+            }
+            return '';
+        };
+    </script>
 
     <script>
         window.scrollToTop = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
-    </script>
+    </script>    
 </body>
 
 </html>
+

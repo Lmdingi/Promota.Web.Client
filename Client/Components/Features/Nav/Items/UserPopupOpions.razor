@@ -1,0 +1,93 @@
+@inject GlobalEventCallBacks _globalEventCallBacks
+@inject IAuthService _authService
+@inject NavigationManager _navigationManager
+@inject JWTAuthenticationStateProvider _authProvider
+@inject ILogger<UserPopupOpions> _logger
+
+<div class="relative">
+    <!-- Button -->
+    <button @onclick="TogglePopup" class="flex items-center space-x-2 text-gray-600 hover:text-pink-500 focus:outline-none">
+        <img alt="User avatar" class="w-8 h-8 rounded-full" src="@UserModel.ProfilePictureUrl" />
+
+            @if (UserModel != null)
+            {
+                <span class="text-sm font-medium">
+                    @UserModel.UserName
+                </span>
+            }
+            else
+            {
+                <span class="text-sm font-medium">
+                    Unknown
+                </span>
+            }
+
+        <span class="material-icons text-gray-400">expand_more</span>
+    </button>
+
+    <!-- Popup Menu -->
+    <div class="@($"popup absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-1 z-50 {(isPopupVisible ? "block" : "hidden")}")">
+        <a class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-500 hover:text-white" href="#">
+            <span class="material-icons mr-3">account_circle</span> Profile
+        </a>
+        <a class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-500 hover:text-white" href="#">
+            <span class="material-icons mr-3">settings</span> Settings
+        </a>
+        <a class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-500 hover:text-white" href="#">
+            <span class="material-icons mr-3">event</span> My Events
+        </a>
+        <hr class="my-1 border-gray-200" />
+        <a class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-500 hover:text-white" @onclick="HandleLogout">
+            <span class="material-icons mr-3">logout</span> Sign Out
+        </a>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter(Name = "UserModel")]
+    public UserModel? UserModel { get; set; }
+
+    private string _errorMessage = string.Empty;
+    private bool isPopupVisible = false;
+
+    private async Task HandleLogout()
+    {
+        try
+        {
+            _globalEventCallBacks.RaiseLoadingSpinnerEvent(true);
+            var isLogedOut = await _authService.LogoutAsync();
+
+            if (isLogedOut)
+            {
+                _globalEventCallBacks.RaiseGetCurrentUserStateForNavEvent();
+                // _navigationManager.NavigateTo("/account");
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in Logout");
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client error in Logout");
+            _errorMessage = "Register failed: An unexpected error occurred.";
+        }
+
+        _globalEventCallBacks.RaiseLoadingSpinnerEvent(false);
+    }
+
+    private void TogglePopup()
+    {
+        isPopupVisible = !isPopupVisible;
+    }
+
+    private void ClosePopup()
+    {
+        isPopupVisible = false;
+    }
+}

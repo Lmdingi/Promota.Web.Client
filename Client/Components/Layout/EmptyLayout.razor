@@ -1,2 +1,32 @@
 ﻿@inherits LayoutComponentBase
-@Body
+
+<!-- Navigation Bar -->
+<NavigationBar></NavigationBar>
+
+<!-- Page Wrapper (pushes footer to bottom if content is short) -->
+<div class="min-h-screen flex flex-col pt-[70px]">
+
+    <!-- Content & Footer Wrapper -->
+    <div class="flex flex-col flex-grow">
+
+        <!-- Main Content -->
+        <main class="flex-grow">
+            @Body
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8" style="height: 100px;">
+            <div class="container mx-auto px-4 text-center">
+                <p>© 2025 Promota. All rights reserved.</p>
+                <div class="mt-2">
+                    <a class="hover:text-pink-400 px-2" href="#">About Us</a>
+                    <a class="hover:text-pink-400 px-2" href="#">Contact</a>
+                    <a class="hover:text-pink-400 px-2" href="#">Privacy Policy</a>
+                    <a class="hover:text-pink-400 px-2" href="terms">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+</div>

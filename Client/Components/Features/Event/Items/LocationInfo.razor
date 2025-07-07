@@ -1,0 +1,152 @@
+﻿<div class=" mx-auto bg-white p-8 rounded-lg shadow-sm border-1 mb-3">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Location</h1>
+
+    <!-- Remote Event Toggle -->
+        <div class="flex items-center gap-2 mb-4">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="remoteToggle" class="sr-only peer" @bind="EventLocation.IsRomote" @onclick="OnIsRemoteChanged">
+                <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-pink-500 transition-all duration-200"></div>
+                <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 transform peer-checked:translate-x-full"></div>
+            </label>
+            <label for="remoteToggle" class="text-sm font-medium text-gray-700">
+                This is a remote/virtual event
+            </label>
+        </div>
+
+
+    @if (EventLocation.IsRomote)
+    {
+        <div class="mb-5">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Online Event Link (Zoom, Google Meet, etc.)</label>
+            <InputText @bind-Value="EventLocation.RemoteLink" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Enter online event link..." />
+        </div>
+    }
+
+    <!-- Physical Event Toggle -->
+        <div class="flex items-center gap-2 mb-4">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox"
+                       id="inPersonToggle"
+                       class="sr-only peer"
+                       @bind="_hasPhysicalLocation"
+                   disabled="@(EventLocation.IsRomote == false)">
+
+                <div class="
+            w-11 h-6 rounded-full
+            transition-all duration-200
+            peer-focus:outline-none
+            bg-gray-300
+            peer-checked:bg-pink-500
+            disabled:peer-checked:bg-gray-400
+            disabled:bg-gray-300
+            "></div>
+
+                <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 transform peer-checked:translate-x-full"></div>
+            </label>
+
+            <label for="inPersonToggle" class="text-sm font-medium text-gray-700">
+                This is a physical/in-person event
+            </label>
+        </div>
+
+
+    @if (_hasPhysicalLocation)
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Venue Name</label>
+                <InputText @bind-Value="EventLocation.VenueName" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Enter venue name..." />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Street Address</label>
+                <InputText @bind-Value="EventLocation.Address" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Enter address..."  required />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">City</label>
+                <InputText @bind-Value="EventLocation.City" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Enter city..." required />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Province/State</label>
+                <InputText @bind-Value="EventLocation.Province" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Enter province/state..." required />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Country</label>
+                <InputText @bind-Value="EventLocation.Country" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Enter country..." required />
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Google Maps Embed Link (optional)</label>
+                <InputText @bind-Value="EventLocation.GoogleMapsEmbedLink" class="w-full border-gray-300 rounded-xl shadow-sm focus:ring-pink-500 focus:border-pink-500" placeholder="Paste embed link..." />
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public EventLocationModel EventLocation { get; set; }
+
+    private bool _hasPhysicalLocation = true;
+
+
+    public void UseUpdatedValues()
+    {
+        if (!EventLocation.IsRomote)
+        {
+            EventLocation.RemoteLink = null;
+        }
+
+        if (!_hasPhysicalLocation)
+        {
+            EventLocation.VenueName = null;
+            EventLocation.Address = null;
+            EventLocation.City = null;
+            EventLocation.Province = null;
+            EventLocation.Country = null;
+            EventLocation.GoogleMapsEmbedLink = null;
+        }
+
+        if (!EventLocation.IsRomote && EventLocation == null)
+        {
+            throw new InvalidOperationException("Location is required for non-remote events.");
+        }
+
+        // if (_hasPhysicalLocation)
+        // {
+        //     if (string.IsNullOrWhiteSpace(_physicalLocation.Address))
+        //     {
+        //         throw new InvalidOperationException("Address is required for in person events.");
+        //     }
+
+        //     if (string.IsNullOrWhiteSpace(_physicalLocation.City))
+        //     {
+        //         throw new InvalidOperationException("City is required for in person events.");
+        //     }
+
+        //     if (string.IsNullOrWhiteSpace(_physicalLocation.Province))
+        //     {
+        //         throw new InvalidOperationException("Province/State is required for in person events.");
+        //     }
+
+        //     if (string.IsNullOrWhiteSpace(_physicalLocation.Country))
+        //     {
+        //         throw new InvalidOperationException("Country is required for in person events.");
+        //     }
+        // }
+
+    }
+
+    private void OnIsRemoteChanged()
+    {
+        if (EventLocation.IsRomote && !_hasPhysicalLocation)
+        {
+            _hasPhysicalLocation = true;
+        }
+        StateHasChanged();
+    }
+
+}

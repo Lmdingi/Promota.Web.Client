@@ -47,16 +47,11 @@ namespace Services
 
         // methods 
         #region Register
-        public async Task<string> RegisterAsync(RegisterRequestDto registerModel)
+        public async Task<bool> RegisterAsync(RegisterRequestDto registerRequestDto)
         {
-            var confirmationUrl = await _aPIService.PostAsync<string>("Auth/Register", registerModel);
+            var isRegistered = await _aPIService.PostAsync<bool>("Auth/Register", registerRequestDto);
 
-            if (string.IsNullOrWhiteSpace(confirmationUrl))
-            {
-                return string.Empty;
-            }
-
-            return confirmationUrl;
+            return isRegistered;
         }
         #endregion
         #region Login
@@ -97,7 +92,7 @@ namespace Services
             // Notify state change
             _authStateProvider.MarkUserAsLoggedOut();
 
-            _navManager.NavigateTo("/");
+            _navManager.NavigateTo("/account");
             return true;
         }
 
