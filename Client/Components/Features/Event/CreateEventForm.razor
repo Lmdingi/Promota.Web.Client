@@ -21,7 +21,7 @@
 
     <Description Event="_eventModel" @ref="_descriptionRef"></Description>
 
-    <Permissions Event="_eventModel"></Permissions>
+@*     <Permissions Event="_eventModel"></Permissions> *@
 
     <MediaSection Media="_media"></MediaSection>
 
@@ -51,8 +51,11 @@
 </EditForm>
 
 @code {
+    [Parameter]
+    public EventCallback<string> ActiveTab { get; set; }
+
     private Event _eventModel = new Event();
-    private EventLocationModel _location = new();
+    private LocationModel _location = new();
     private MediaModel _media = new();
 
     private EventDateAndTimeInfo _eventDateTimeInfoRef;
@@ -78,6 +81,10 @@
                 _eventModel.Media = _media;
                 _eventModel.DescriptionHtml = await _descriptionRef.GetDescriptionHtml();
                 eventId = await _eventService.CreatEventAsync(_eventModel);
+                if(!string.IsNullOrWhiteSpace(eventId))
+                {
+                    await ActiveTab.InvokeAsync("events");
+                }
             }
             else
             {

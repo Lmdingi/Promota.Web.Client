@@ -19,31 +19,49 @@
     }
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center">
-        <div class="icon-placeholder flex-shrink-0 mr-6 mb-4 sm:mb-0"> @* still need to remove icon *@
-            <img src="@Event.Media.ThumbnailUrl"
-                 alt="Thumbnail"
-                 class="w-full h-full object-cover rounded-full border shadow" />
-        </div>
+        @if (Event.Media != null && !string.IsNullOrWhiteSpace(Event.Media.ThumbnailUrl))
+        {
+            <div class="relative w-[150px] h-[150px] flex-shrink-0 mr-6 mb-4 sm:mb-0">
+                <img src="@Event.Media.ThumbnailUrl"
+                     alt="Thumbnail"
+                     class="w-full h-full object-cover rounded-full border shadow" />
+            </div>
+        }
+        else
+        {
+            <div class="relative w-[150px] h-[150px] flex-shrink-0 mr-6 mb-4 sm:mb-0">
+                <img src=""
+                     alt=""
+                     class="w-full h-full object-cover rounded-full border shadow" />
+            </div>
+        }
 
         <div class="flex-grow">
             <div class="flex justify-between items-start mb-2">
                 <div>
-                    <p class="text-sm text-gray-500">@Event.Creator.UserName</p>
+                    <a href="@($"/profile/{Event.Creator.Id}")" class="text-sm text-gray-500">@Event.Creator.UserName</a>
                     <h2 class="text-2xl font-bold text-gray-800">@Event.Title</h2>
                 </div>
                 <div class="flex items-center text-gray-500">
-                    <span class="material-icons text-yellow-400">star</span>
+@*                     <span class="material-icons text-yellow-400">star</span>
                     <span class="material-icons text-yellow-400">star</span>
                     <span class="material-icons text-yellow-400">star</span>
                     <span class="material-icons text-yellow-400">star_half</span>
                     <span class="material-icons text-gray-300">star_border</span>
                     <span class="ml-4 flex items-center text-sm">
                         <span class="material-icons text-gray-400 mr-1">group</span> 200
-                    </span>
+                    </span> *@
                 </div>
             </div>
 
-            <p class="text-sm text-gray-500 mb-1"> @Event.StartDate.ToString("dddd, dd MMMM yyyy hh:mm tt") @_timeZone </p>
+            <p class="text-sm text-gray-500 mb-1">
+                @Event.StartDate.ToString("dddd, dd MMMM yyyy hh:mm tt") @_timeZone 
+
+                @if(Event.EndDate != null)
+                {
+                    @(" - ") @_endDate.ToString("dddd, dd MMMM yyyy hh:mm tt")@_timeZone
+                }
+            </p>
 
             <div class="flex gap-3 items-center text-sm text-gray-600 mb-1">
                 @if (Event.Location.IsRomote)
@@ -53,12 +71,14 @@
                         Online
                     </a>
                 }
+            </div>
 
+            <div class="flex gap-3 items-center text-sm text-gray-600 mb-1">
                 @if (!string.IsNullOrWhiteSpace(Event.Location.City))
                 {
                     <div class="flex items-center text-sm text-gray-600 mb-1">
                         <span class="material-icons text-gray-400 mr-1 text-base">location_on</span>
-                         @(" " + Event.Location.City)
+                        @(" " + Event.Location.Address) @(" " + Event.Location.City)  @(" " + Event.Location.Province) @(" " + Event.Location.Country)
                     </div>
                 }
             </div>
@@ -82,34 +102,56 @@
                 }
             </div>
 
+            <div class="fw-bold mt-1">
+                <div class="mt-2">
+                    @foreach (var keyword in Event.Keywords)
+                    {
+                        <span class="inline-flex items-center bg-pink-100 text-pink-700 text-sm font-medium mr-2 mb-2 px-2.5 py-1 rounded-full">
+                            @keyword                            
+                        </span>
+                    }
+                </div>
+            </div>
+
         </div>
     </div>
 
     <div class="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-2">
-        <button class="col-span-2 sm:col-span-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-3 rounded-md flex items-center justify-center text-sm" disabled="@(_currentUser != null && _currentUser.Id == Event.Creator.Id)">
+@*         <button class="col-span-2 sm:col-span-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-3 rounded-md flex items-center justify-center text-sm" disabled="@(_currentUser != null && _currentUser.Id == Event.Creator.Id)">
             <span class="material-icons mr-1 text-base">person_add</span> Attend <span class="ml-1 bg-pink-700 text-white text-xs px-1.5 py-0.5 rounded-full">256</span>
-        </button>
+        </button> *@
 
         <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "details") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("details"))">
             Details
         </button>
         
-        <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "comments") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("comments"))">
+@*         <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "comments") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("comments"))">
             Comments
-        </button>
+        </button> *@
 
-        <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "chat") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("chat"))">
+@*         <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "chat") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("chat"))">
             Chat
-        </button>
+        </button> *@
 
-        <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "share") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("share"))">
+@*         <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "share") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("share"))">
             Share
-        </button>
+        </button> *@
     </div>
 
     <div class="p-3 border rounded-bottom rounded-end" style=@_showTabContent>
         @if (_activeTab == "details")
         {
+            @* <div class="relative w-full max-w-2xl w-full rounded-lg overflow-hidden border"> *@
+            if (Event.Media != null && !string.IsNullOrWhiteSpace(Event.Media.ThumbnailUrl))
+            {
+                <img src="@Event.Media.BannerUrl"
+                     alt="Banner Image"
+                     class="w-full object-cover border" style="height: 250px" />
+            }
+            @* </div> *@
+
+            <br />
+
             @((MarkupString)Event.DescriptionHtml)            
         }
         else if (_activeTab == "comments")
@@ -144,6 +186,7 @@
     private string _showTabContent = "display:none";
 
     private string _timeZone = string.Empty;
+    private DateTime _endDate = new();
 
     private int attendanceCount = 256;
     private int followersCount = 200;
@@ -165,7 +208,7 @@
                 Event.StartDate = SetLocalTimeZone(Event.StartDate, Event.TimeZone);
                 if (Event.EndDate != null)
                 {
-                    Event.EndDate = SetLocalTimeZone((DateTime)Event.EndDate, Event.TimeZone);
+                    _endDate = SetLocalTimeZone((DateTime)Event.EndDate, Event.TimeZone);
                 }
             }
             else

@@ -10,5 +10,6 @@ namespace Services.Models
     {
         public string? BannerUrl { get; set; }
         public string? ThumbnailUrl { get; set; }
+        public string? ProfilePicUrl { get; set; }
     }
 }
