@@ -32,7 +32,7 @@ namespace Services.Models
         public DateTime? EndDate { get; set; } = DateTime.Now;
 
         // Location Mode Selection
-        public EventLocationModel? Location { get; set; }
+        public LocationModel? Location { get; set; }
 
         // Pricing Section
         public string? Currency { get; set; }

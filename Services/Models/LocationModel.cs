@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Services.Models
 {
-    public class EventLocationModel
+    public class LocationModel
     {
         public bool IsRomote { get; set; }
         public string? RemoteLink { get; set; }

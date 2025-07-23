@@ -9,6 +9,8 @@ namespace Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserModel> GetUserByUserIdAsync(string CreatorId);
+        Task<UserModel> GetUserProfileByUserIdAsync(string CreatorId);
+        Task UpdateUserProfileAsync(UserModel model);
+        //Task<ProfileModel> GetUserProfileByIdAsync(string userId);
     }
 }

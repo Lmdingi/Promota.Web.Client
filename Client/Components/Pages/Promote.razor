@@ -19,17 +19,17 @@
                 Events
             </button>
 
-            <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+@*             <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
                        @((activeTab == "analytics") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
                     @onclick="@(() => SetActiveTab("analytics"))">
                 Analytics
-            </button>
+            </button> *@
 
-            <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+@*             <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
                        @((activeTab == "going") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
                     @onclick="@(() => SetActiveTab("going"))">
                 Going
-            </button>
+            </button> *@
         </nav>
     </div>
 
@@ -37,7 +37,7 @@
     <div class="p-4 flex-grow overflow-auto">
         @if (activeTab == "promote")
         {
-            <CreateEventForm/>
+            <CreateEventForm ActiveTab="SetActiveTab" />
         }
         else if (activeTab == "events")
         {

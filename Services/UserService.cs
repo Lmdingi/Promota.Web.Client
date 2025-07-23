@@ -16,11 +16,22 @@ namespace Services
         {
             _aPIService = aPIService;
         }
-        public async Task<UserModel> GetUserByUserIdAsync(string CreatorId)
+        public async Task<UserModel> GetUserProfileByUserIdAsync(string CreatorId)
         {
             var userInformation = await _aPIService.GetAsync<UserModel>($"users?userId={Uri.EscapeDataString(CreatorId)}");
-
             return userInformation;
         }
+
+        public async Task UpdateUserProfileAsync(UserModel model)
+        {
+            var response = await _aPIService.PutAsync<bool>($"Users", model);
+
+            //return response;
+        }
+
+        //public Task<ProfileModel> GetUserProfileByIdAsync(string userId)
+        //{
+        //    //throw new NotImplementedException();
+        //}
     }
 }
