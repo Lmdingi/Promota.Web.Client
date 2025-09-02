@@ -1,0 +1,78 @@
+﻿@inject IAuthService _authService
+@inject NavigationManager _nav
+@inject JWTAuthenticationStateProvider _AuthStateProvider
+@inject IAccessTokenService _AccessTokenService
+@inject IAuthService _AuthService
+@inject IResourceService _ResourceService
+@inject IEventService _eventService
+@inject ILogger<MyEvents> _logger
+@inject IUserService _userService
+
+@foreach (var eventModel in _events)
+{
+    <EventCard Event="eventModel" OnEdit="OnEdit" OnDelete="HandleDelete"></EventCard>
+}
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnEdit { get; set; }
+    public Alert? Alert { get; set; }
+
+    private UserModel? _currentUser = null;
+    private List<Event> _events = new List<Event>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                _currentUser = await _AuthStateProvider.GetCurrentUserState();
+                _events = await _eventService.GetEventsByUserIdAsync(_currentUser.Id);
+                StateHasChanged();
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in GetEventsByUserId");
+            await HandleAlertChanged(new Alert("Event failed", ex.Message, AlertType.Error));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client logic error in GetEventsByUserId");
+            await HandleAlertChanged(new Alert("Event failed", "Get events failed: An unexpected error occurred.", AlertType.Error));
+        }
+    }
+
+    private async Task HandleAlertChanged(Alert? alert)
+    {
+        Alert = alert;
+        StateHasChanged();
+
+        if (alert != null && alert.Type == AlertType.Success)
+        {
+            await Task.Delay(3000);
+            Alert = null;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleDelete(string eventId)
+    {
+        try
+        {
+            await _eventService.DeleteEventByIdAsync(eventId);
+            var eventModel = _events.FirstOrDefault(x => x.Id == eventId);
+            _events.Remove(eventModel);
+            StateHasChanged();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in GetEvents");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client logic error in GetEvents");
+        }
+    }
+}

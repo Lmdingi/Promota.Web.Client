@@ -1,7 +1,71 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@inject IAuthService _authService
+@inject NavigationManager _navigationManager
+@inject IAccessTokenService _AccessTokenService
+@inject IAuthService _AuthService
+@inject IResourceService _ResourceService
+@inject IEventService _eventService
+@inject ILogger<Home> _logger
+@inject IUserService _userService
+@inject GlobalEventCallBacks _globalEventCallBacks
 
-<PageTitle>Home</PageTitle>
+@foreach (var eventModel in _events)
+{
+    <EventCard Event="eventModel"></EventCard>
+}
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+@code {
+    public bool IsLoading { get; set; }
+
+    private List<Event> _events = new List<Event>();
+    public UserModel? _userModel;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                _events = await _eventService.GetEventsAsync();
+                StateHasChanged();
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in GetEvents");
+            // await HandleAlertChanged(new Alert("Event failed", ex.Message, AlertType.Error));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client logic error in GetEvents");
+            // await HandleAlertChanged(new Alert("Event failed", "Get events failed: An unexpected error occurred.", AlertType.Error));
+        }
+
+        // await JS.InvokeVoidAsync("scrollToTop");
+
+    }
+
+
+    #region old
+    // protected async override Task OnInitializedAsync()
+    // {
+
+
+    //     // _globalEventCallBacks.OnGetCurrentUserStateForNav += HandleGetCurrentUserState;
+    //     // HandleGetCurrentUserState();
+    // }
+
+    // private void HandleGetCurrentUserState()
+    // {
+    //     _ = InvokeAsync(async () =>
+    //     {
+    //         _userModel = await _AuthStateProvider.GetCurrentUserState();
+    //         StateHasChanged();
+    //     });
+
+    //     StateHasChanged();
+    // }
+    #endregion
+}

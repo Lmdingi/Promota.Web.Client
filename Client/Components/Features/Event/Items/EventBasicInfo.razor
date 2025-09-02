@@ -1,0 +1,85 @@
+﻿<div class=" mx-auto bg-white p-8 rounded-lg shadow-sm border-1 mb-3">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Basic Information</h1>
+    
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="event-title">
+            Event Title <span class="text-red-500">*</span>
+        </label>
+
+        <InputText id="event-title" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm" @bind-Value="Event.Title" />
+        <ValidationMessage For="@(() => Event.Title)" />
+        <p class="mt-1 text-xs text-gray-500">Choose a clear and concise title.</p>
+    </div>
+
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="event-category">
+            Category <span class="text-red-500">*</span>
+        </label>
+
+        <InputSelect id="event-category" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm" @bind-Value="Event.Category">
+                <option disabled selected value="">Select a category</option>
+                @foreach (var category in EventCategories.List)
+                {
+                    <option value="@category">@category</option>
+                }
+        </InputSelect>
+        <ValidationMessage For="@(() => Event.Category)" />
+        <p class="mt-1 text-xs text-gray-500">Select the category that best fits your event.</p>
+    </div>
+
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1" for="event-keywords">Keywords</label>
+
+        <div class="relative">
+            <input id="event-keywords-input" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-10" @bind="NewKeyword" @onkeypress="HandleKeyPress" placeholder="Add keywords (e.g., concert, festival)" />
+            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-pink-500 hover:text-pink-700" @onclick="AddKeyword">
+                <span class="material-icons">add_circle</span>
+            </button>
+        </div>
+
+        <div class="mt-2">
+        @foreach (var keyword in Event.Keywords)
+            {
+            <span class="inline-flex items-center bg-pink-100 text-pink-700 text-sm font-medium mr-2 mb-2 px-2.5 py-1 rounded-full">
+                    @keyword
+                <span class="material-icons ml-1.5 text-pink-500 hover:text-pink-700 cursor-pointer" @onclick="() => RemoveKeyword(keyword)">cancel</span>
+                </span>
+            }
+        </div>
+
+        <p class="mt-1 text-xs text-gray-500">Add keywords to help people find your event. Press Enter or click the '+' button to add.</p>
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public Event? Event { get; set; }
+
+    private string NewKeyword;
+
+    private void AddKeyword()
+    {
+        if (!string.IsNullOrWhiteSpace(NewKeyword) && !Event.Keywords.Contains(NewKeyword) && Event.Keywords.Count < 5)
+        {
+            Event.Keywords.Add(NewKeyword.Trim());
+            NewKeyword = string.Empty;
+        }
+    }
+
+    private void RemoveKeyword(string keyword)
+    {
+        Event.Keywords.Remove(keyword);
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            // e.PreventDefault();
+            AddKeyword();
+        }
+    }
+}
+

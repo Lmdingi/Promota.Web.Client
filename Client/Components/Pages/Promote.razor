@@ -1,0 +1,103 @@
+﻿@page "/promote"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject NavigationManager _navigationManager
+
+<div class="bg-white rounded-2xl shadow-lg h-[630px] flex flex-col overflow-hidden">
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 px-4 pt-4">
+        <nav class="flex space-x-4">
+            <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+                       @((activeTab == "promote") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
+                    @onclick="@(() => SetActiveTab("promote"))">
+                Promote
+            </button>
+
+            <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+                       @((activeTab == "events") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
+                    @onclick="@(() => SetActiveTab("events"))">
+                Events
+            </button>
+
+@*             <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+                       @((activeTab == "analytics") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
+                    @onclick="@(() => SetActiveTab("analytics"))">
+                Analytics
+            </button> *@
+
+@*             <button class="px-4 py-2 rounded-t-lg text-sm font-medium focus:outline-none transition-all
+                       @((activeTab == "going") ? "bg-pink-500 text-white" : "text-gray-600 hover:text-pink-500")"
+                    @onclick="@(() => SetActiveTab("going"))">
+                Going
+            </button> *@
+        </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="p-4 flex-grow overflow-auto">
+        @if (activeTab == "promote")
+        {
+            <CreateEventForm ActiveTab="SetActiveTab" />
+        }
+        else if (activeTab == "events")
+        {
+            <MyEvents OnEdit="SetActiveTab" />
+        }
+        else if (activeTab == "analytics")
+        {
+            <p class="text-gray-700 font-medium">Analytics: Track attendance, views, engagement, and ratings per event. (future).</p>
+        }
+        else if (activeTab == "going")
+        {
+            <p class="text-gray-700 font-medium">Going: List of events the user marked to attend. (future).</p>
+        }
+    </div>
+</div>
+
+
+@if (Alert != null)
+{
+    <AlertModal Alert="@Alert" OnAlertChanged="HandleAlertChanged"></AlertModal>
+}
+
+@code {
+    public Alert? Alert { get; set; }
+    private string activeTab = "promote";
+
+    private void SetActiveTab(string tab)
+    {
+        if (tab != "promote")
+        {
+            var uri = _navigationManager.ToAbsoluteUri(_navigationManager.Uri);
+            var query = QueryHelpers.ParseQuery(uri.Query);
+
+            if (query.TryGetValue("eventId", out var eventId))
+            {
+                _navigationManager.NavigateTo("/promote", forceLoad: false, replace: true);
+            }
+        }
+
+        if (activeTab == tab)
+        {
+            activeTab = "";
+        }
+        else
+        {
+            activeTab = tab;
+        }
+    }
+
+    private async Task HandleAlertChanged(Alert? alert)
+    {
+        Alert = alert;
+        StateHasChanged();
+
+        if (alert != null && alert.Type == AlertType.Success)
+        {
+            activeTab = "events";
+            await Task.Delay(3000);
+            Alert = null;
+            StateHasChanged();
+        }
+    }
+}

@@ -1,0 +1,285 @@
+﻿@using System.Text.RegularExpressions
+@using System.Text.Json
+@inject ILogger<EventCard> _logger
+@inject IEventService _eventService
+@inject IUserService _userService
+@inject JWTAuthenticationStateProvider _AuthStateProvider
+@inject NavigationManager _navigationManager
+
+<style>
+    .ticket-link-hover:hover {
+        color: orange !important;
+    }
+</style>
+
+<div class="bg-white p-6 rounded-lg shadow-lg mt-0 mb-4">
+    @if (_currentUser != null && _currentUser.Id == Event.Creator.Id)
+    {
+        <div class="top-0 start-0 w-100 bg-pink-600 my-2" style="height: 1px; border-top-left-radius: .5rem; border-top-right-radius: .5rem;"></div>
+    }
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center">
+        @if (Event.Media != null && !string.IsNullOrWhiteSpace(Event.Media.ThumbnailUrl))
+        {
+            <div class="relative w-[150px] h-[150px] flex-shrink-0 mr-6 mb-4 sm:mb-0">
+                <img src="@Event.Media.ThumbnailUrl"
+                     alt="Thumbnail"
+                     class="w-full h-full object-cover rounded-full border shadow" />
+            </div>
+        }
+        else
+        {
+            <div class="relative w-[150px] h-[150px] flex-shrink-0 mr-6 mb-4 sm:mb-0">
+                <img src=""
+                     alt=""
+                     class="w-full h-full object-cover rounded-full border shadow" />
+            </div>
+        }
+
+        <div class="flex-grow">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <a href="@($"/profile/{Event.Creator.Id}")" class="text-sm text-gray-500">@Event.Creator.UserName</a>
+                    <h2 class="text-2xl font-bold text-gray-800">@Event.Title</h2>
+                </div>
+                <div class="flex items-center text-gray-500">
+@*                     <span class="material-icons text-yellow-400">star</span>
+                    <span class="material-icons text-yellow-400">star</span>
+                    <span class="material-icons text-yellow-400">star</span>
+                    <span class="material-icons text-yellow-400">star_half</span>
+                    <span class="material-icons text-gray-300">star_border</span>
+                    <span class="ml-4 flex items-center text-sm">
+                        <span class="material-icons text-gray-400 mr-1">group</span> 200
+                    </span> *@
+                </div>
+            </div>
+
+            <p class="text-sm text-gray-500 mb-1">
+                @Event.StartDate.ToString("dddd, dd MMMM yyyy hh:mm tt") @_timeZone 
+
+                @if(Event.EndDate != null)
+                {
+                    @(" - ") @_endDate.ToString("dddd, dd MMMM yyyy hh:mm tt")@_timeZone
+                }
+            </p>
+
+            <div class="flex gap-3 items-center text-sm text-gray-600 mb-1">
+                @if (Event.Location.IsRomote)
+                {
+                    <a href="@Event.Location.RemoteLink" target="_blank" class="flex items-center text-sm text-gray-600 mb-1">
+                        <span class="material-icons text-green-500 mr-1 text-base">online_prediction</span>
+                        Online
+                    </a>
+                }
+            </div>
+
+            <div class="flex gap-3 items-center text-sm text-gray-600 mb-1">
+                @if (!string.IsNullOrWhiteSpace(Event.Location.City))
+                {
+                    <div class="flex items-center text-sm text-gray-600 mb-1">
+                        <span class="material-icons text-gray-400 mr-1 text-base">location_on</span>
+                        @(" " + Event.Location.Address) @(" " + Event.Location.City)  @(" " + Event.Location.Province) @(" " + Event.Location.Country)
+                    </div>
+                }
+            </div>
+
+            <div class="fw-bold mt-1">
+                @if (Event.Price != 0)
+                {
+                    <a href="@Event.TicketLink"
+                        class="fw-bold text-pink-500 mt-1 @(string.IsNullOrWhiteSpace(Event.TicketLink) ? "" : "ticket-link-hover")"
+                        style="text-decoration:none">
+                        @(Event.Currency + " " + Event.Price.ToString("F2"))
+                    </a>
+                }
+                else
+                {
+                    <a href="@Event.TicketLink"
+                        class="fw-bold text-pink-500 mt-1 @(string.IsNullOrWhiteSpace(Event.TicketLink) ? "" : "ticket-link-hover")"
+                        style="text-decoration:none">
+                        Free
+                    </a>
+                }
+            </div>
+
+            <div class="fw-bold mt-1">
+                <div class="mt-2">
+                    @foreach (var keyword in Event.Keywords)
+                    {
+                        <span class="inline-flex items-center bg-pink-100 text-pink-700 text-sm font-medium mr-2 mb-2 px-2.5 py-1 rounded-full">
+                            @keyword                            
+                        </span>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-2">
+@*         <button class="col-span-2 sm:col-span-1 bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-3 rounded-md flex items-center justify-center text-sm" disabled="@(_currentUser != null && _currentUser.Id == Event.Creator.Id)">
+            <span class="material-icons mr-1 text-base">person_add</span> Attend <span class="ml-1 bg-pink-700 text-white text-xs px-1.5 py-0.5 rounded-full">256</span>
+        </button> *@
+
+        <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "details") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("details"))">
+            Details
+        </button>
+        
+@*         <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "comments") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("comments"))">
+            Comments
+        </button> *@
+
+@*         <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "chat") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("chat"))">
+            Chat
+        </button> *@
+
+@*         <button class="font-medium py-2 px-3 rounded-md text-sm nav-link @((_activeTab == "share") ? "active bg-pink-500 text-white hover:bg-pink-600" : "bg-gray-200 text-gray-700 hover:bg-gray-300")" @onclick="@(() => SetActiveTab("share"))">
+            Share
+        </button> *@
+    </div>
+
+    <div class="p-3 border rounded-bottom rounded-end" style=@_showTabContent>
+        @if (_activeTab == "details")
+        {
+            @* <div class="relative w-full max-w-2xl w-full rounded-lg overflow-hidden border"> *@
+            if (Event.Media != null && !string.IsNullOrWhiteSpace(Event.Media.ThumbnailUrl))
+            {
+                <img src="@Event.Media.BannerUrl"
+                     alt="Banner Image"
+                     class="w-full object-cover border" style="height: 250px" />
+            }
+            @* </div> *@
+
+            <br />
+
+            @((MarkupString)Event.DescriptionHtml)            
+        }
+        else if (_activeTab == "comments")
+        {
+            <p><strong>User Comments:</strong> This section will show user-generated comments and discussions.</p>
+        }
+        else if (_activeTab == "chat")
+        {
+            <p><strong>Direct Chat:</strong> Allow users to Chat the promoter directly about this event.</p>
+        }
+        else if (_activeTab == "share")
+        {
+            <p><strong>Share Options:</strong> Link to social media share, copy link, etc.</p>
+        }
+    </div>
+
+</div>
+
+@code {
+    [Parameter]
+    public Event Event { get; set; }
+    [Parameter]
+    public EventCallback<string> OnEdit { get; set; }
+    [Parameter]
+    public EventCallback<string> OnDelete { get; set; }
+
+    private UserModel? _currentUser = null;
+    private string? _thumbnailPreviewUrl;
+    private string? _coverImagePreviewUrl;
+
+    private string _activeTab = "";
+    private string _showTabContent = "display:none";
+
+    private string _timeZone = string.Empty;
+    private DateTime _endDate = new();
+
+    private int attendanceCount = 256;
+    private int followersCount = 200;
+    private int rating = 3;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _currentUser = await _AuthStateProvider.GetCurrentUserState();
+
+            if (_currentUser == null || _currentUser.Id != Event.Creator.Id)
+            {
+                if (Event.Currency != null)
+                {
+                    await ConvertCurrencyAsync(Event);
+                }
+
+                Event.StartDate = SetLocalTimeZone(Event.StartDate, Event.TimeZone);
+                if (Event.EndDate != null)
+                {
+                    _endDate = SetLocalTimeZone((DateTime)Event.EndDate, Event.TimeZone);
+                }
+            }
+            else
+            {
+                _timeZone = Regex.Match(TimeZoneInfo.FindSystemTimeZoneById(Event.TimeZone).DisplayName, @"\(UTC[^\)]+\)").ToString();
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnEditTriggered()
+    {
+        _navigationManager.NavigateTo($"/promote?eventId={Event.Id}");
+        await OnEdit.InvokeAsync("promote");
+    }
+
+    private async Task OnDeleteTriggered(MouseEventArgs args)
+    {
+        await OnDelete.InvokeAsync(Event.Id);       
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        if(_activeTab == tab)
+        {
+            _activeTab = "";
+            _showTabContent = "display:none";
+        }
+        else
+        {
+            _activeTab = tab;
+            _showTabContent = "display:block";
+        }        
+    }
+
+    static async Task ConvertCurrencyAsync(Event currentEvent)
+    {
+        CultureInfo currentCulture = CultureInfo.CurrentCulture;
+        RegionInfo region = new RegionInfo(currentCulture.Name);   
+        var apiKey = "61fdd6d6ef55dae6ba4adb9f";
+
+        string url = $"https://v6.exchangerate-api.com/v6/{apiKey}/pair/{currentEvent.Currency.ToUpper()}/{region.ISOCurrencySymbol}/{currentEvent.Price.ToString().Replace(",", ".")}";
+
+        using var client = new HttpClient();
+
+        string response = await client.GetStringAsync(url);
+        using JsonDocument doc = JsonDocument.Parse(response);
+
+        if (doc.RootElement.TryGetProperty("conversion_result", out var result))
+        {
+            decimal converted = result.GetDecimal();
+            currentEvent.Price = converted;
+            currentEvent.Currency = region.CurrencySymbol;
+        }
+    }
+
+    private DateTime SetLocalTimeZone(DateTime originalTime, string timezone)
+    {
+        // Step 1: Original time
+        TimeZoneInfo sourceTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+
+        // Step 2: Local time zone (machine's local time zone)
+        TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+
+        // Step 3: Convert to local time
+        DateTime localTime = TimeZoneInfo.ConvertTime(originalTime, sourceTimeZone, localTimeZone);
+
+        // Step 4: Output
+        return localTime;
+    }
+    
+ 
+}

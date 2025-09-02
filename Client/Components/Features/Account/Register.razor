@@ -1,0 +1,169 @@
+@inject GlobalEventCallBacks _globalEventCallBacks
+@inject IAuthService _authService
+@inject NavigationManager _navigationManager
+@inject JWTAuthenticationStateProvider _authProvider
+@inject ILogger<Register> _logger
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+<div class="tab-content active">
+    <h2 class="text-center text-3xl font-extrabold text-gray-900 mb-2">Create an account</h2>
+    <p class="text-center text-sm text-gray-600 mb-6">Join Promota and discover amazing events!</p>
+
+    <EditForm Model="@_registerRequestDto" OnValidSubmit="HandleRegister">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700" for="firstName">First Name</label>
+            <div class="mt-1">
+                <InputText id="firstName" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                           @bind-Value="_registerRequestDto.FirstName" placeholder="John" />
+                <ValidationMessage For="@(() => _registerRequestDto.FirstName)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700" for="lastName">Last Name</label>
+            <div class="mt-1">
+                <InputText id="lastName" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                           @bind-Value="_registerRequestDto.LastName" placeholder="Doe" />
+                <ValidationMessage For="@(() => _registerRequestDto.LastName)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700" for="userName">User Name</label>
+            <div class="mt-1">
+                <InputText id="userName" type="text" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                           @bind-Value="_registerRequestDto.UserName" placeholder="John_Doe" />
+                <ValidationMessage For="@(() => _registerRequestDto.UserName)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700" for="signUpEmail">Email address</label>
+            <div class="mt-1">
+                <InputText id="signUpEmail" type="email" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                           @bind-Value="_registerRequestDto.Email" placeholder="you@example.com" />
+                <ValidationMessage For="@(() => _registerRequestDto.Email)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700" for="signUpPassword">Password</label>
+            <div class="mt-1 relative">
+                <InputText id="signUpPassword"
+                           type="@(_showPassword ? "text" : "password")"
+                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-10"
+                           @bind-Value="_registerRequestDto.Password"
+                           placeholder="••••••••" />
+                <button type="button"
+                        class="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm"
+                        @onclick="() => _showPassword = !_showPassword"
+                        tabindex="-1">
+                    @(_showPassword ? "Hide" : "Show")
+                </button>
+                <ValidationMessage For="@(() => _registerRequestDto.Password)" />
+            </div>
+        </div>
+
+
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700" for="confirmPassword">Confirm Password</label>
+            <div class="mt-1 relative">
+                <InputText id="confirmPassword"
+                           type="@(_showConfirmPassword ? "text" : "password")"
+                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-10"
+                           @bind-Value="_registerRequestDto.ConfirmPassword"
+                           placeholder="••••••••" />
+                <button type="button"
+                        class="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm"
+                        @onclick="() => _showConfirmPassword = !_showConfirmPassword"
+                        tabindex="-1">
+                    @(_showConfirmPassword ? "Hide" : "Show")
+                </button>
+                <ValidationMessage For="@(() => _registerRequestDto.ConfirmPassword)" />
+            </div>
+        </div>
+
+
+        <div class="flex items-start">
+            <div class="flex items-center h-5">
+                <InputCheckbox id="terms" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-pink-300 text-pink-600" @bind-Value="_registerRequestDto.AcceptTerms" />
+            </div>
+
+            <div class="ml-3 text-sm">
+                <label class="font-light text-gray-500" for="terms">
+                    I accept the <a class="font-medium text-pink-600 hover:underline" href="/terms" target="_blank">Terms and Conditions</a>
+                </label>
+            </div>
+        </div>
+        <ValidationMessage For="@(() => _registerRequestDto.AcceptTerms)" />
+
+        <p class="mt-4 text-center text-sm text-gray-500">
+            Already have an account?
+            <button type="button" class="font-medium text-pink-600 hover:text-pink-500" @onclick="@((_ => _globalEventCallBacks.RaiseRegisterOrSignInTabSelectionEvent("signIn")))">Sign in</button>
+        </p>
+
+        <div>
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+                Sign Up
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    RegisterRequestDto _registerRequestDto = new RegisterRequestDto();
+    private string _errorMessage = string.Empty;
+    private bool _showConfirmPassword = false;
+    private bool _showPassword = false;
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            _globalEventCallBacks.RaiseLoadingSpinnerEvent(true);
+            var isRegistered = await _authService.RegisterAsync(_registerRequestDto);
+
+            if (isRegistered)
+            {
+                var isLogedIn = await _authService.LoginAsync(
+                    new LoginRequestDto
+                    {
+                        Identifier = _registerRequestDto.Email, 
+                        Password = _registerRequestDto.Password
+                    });
+
+                if (isLogedIn)
+                {
+                    _globalEventCallBacks.RaiseGetCurrentUserStateForNavEvent();
+                    _navigationManager.NavigateTo("/welcome");
+                }
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "API error in Register");
+            _errorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Client error in Register");
+            _errorMessage = "Register failed: An unexpected error occurred.";
+        }
+
+        _globalEventCallBacks.RaiseLoadingSpinnerEvent(false);
+    }
+
+    private string GetContentClass(string tabName) =>
+      "tab-content active";
+}

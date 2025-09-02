@@ -49,3 +49,55 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    border: 8px solid transparent;
+    border-top: 8px solid #ec4899; /* pink */
+    border-right: 8px solid #f9a8d4; /* lighter pink */
+    border-radius: 50%;
+    animation: spin 1s linear infinite, colorShift 2s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes colorShift {
+    0% {
+        border-top-color: #ec4899;
+        border-right-color: #f9a8d4;
+    }
+
+    50% {
+        border-top-color: #f472b6;
+        border-right-color: #ec4899;
+    }
+
+    100% {
+        border-top-color: #ec4899;
+        border-right-color: #f9a8d4;
+    }
+}
+
+.keyword-chip {
+    @apply inline-flex items-center bg-pink-100 text-pink-700 text-sm font-medium mr-2 mb-2 px-2.5 py-1 rounded-full;
+}
+
+.keyword-chip-remove {
+    @apply ml-1.5 text-pink-500 hover:text-pink-700 cursor-pointer;
+}
+
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}

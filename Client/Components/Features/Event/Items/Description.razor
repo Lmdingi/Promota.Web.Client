@@ -1,0 +1,30 @@
+﻿@inject IJSRuntime JS
+
+<div class=" mx-auto bg-white p-8 rounded-lg shadow-sm border-1 mb-3">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Description</h1>
+
+    <div id="quillEditor" class="bg-white h-60 rounded-xl shadow-sm"></div>
+    <textarea id="descriptionHtml" class="hidden" @bind="Event.DescriptionHtml"></textarea>
+    <ValidationMessage For="@(() => Event.DescriptionHtml)" />
+</div>
+
+
+
+@code {
+    [Parameter]
+    public Event? Event { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initQuill");
+        }
+    }
+
+    public async Task<string> GetDescriptionHtml()
+    {
+        var content = await JS.InvokeAsync<string>("getQuillContent");
+        return content;
+    }
+}
