@@ -59,13 +59,21 @@
                     </p>
 
                     <div class="flex items-center justify-center md:justify-start space-x-6 text-gray-600 mt-4">
-                        @if (_profile?.Location?.City != null && _profile?.Location?.Country != null)
-                        {
+
                             <div class="flex items-center">
                                 <span class="material-icons mr-1 text-gray-400">location_on</span>
                                 <span>@_profile?.Location?.City, @_profile?.Location?.Country</span>
+
+                                <span class="ms-3 material-icons mr-1 text-gray-400">email</span>
+                                <span>@_profile?.Email</span>
+
+                                <span class="ms-3 material-icons mr-1 text-gray-400">phone</span>
+                                <span>@_profile?.Phone?</span>
+
+                                <span class="ms-3 material-icons mr-1 text-gray-400">language</span>
+                                <a href="@_profile?.Website" target="_blank">@_profile?.Website</a>
                             </div>
-                        }
+                  
 
                         @* rating *@
            @*              <div class="flex items-center">

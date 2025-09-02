@@ -19,6 +19,13 @@ namespace Services
         public async Task<UserModel> GetUserProfileByUserIdAsync(string CreatorId)
         {
             var userInformation = await _aPIService.GetAsync<UserModel>($"users?userId={Uri.EscapeDataString(CreatorId)}");
+
+            userInformation.Bio = "Passionate about bringing people together through unforgettable events, I am dedicated to creating experiences that leave lasting memories. With a keen eye for trends and a talent for connecting with diverse audiences, I work closely with artists, brands, and venues to craft events that excite, inspire, and entertain.";
+            userInformation.Email = "email@gma]il.com";
+            userInformation.Phone = "+27476921582";
+            userInformation.Website = "www.google.com";
+
+
             return userInformation;
         }
 
